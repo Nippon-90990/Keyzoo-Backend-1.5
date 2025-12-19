@@ -1,0 +1,13 @@
+{
+  "collectionName": "components_game_language_interface_languages",
+  "info": {
+    "displayName": "Interface Language"
+  },
+  "options": {},
+  "attributes": {
+    "interface": {
+      "type": "string"
+    }
+  },
+  "config": {}
+}

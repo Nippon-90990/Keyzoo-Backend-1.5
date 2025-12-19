@@ -1,0 +1,32 @@
+{
+  "kind": "collectionType",
+  "collectionName": "game_keys",
+  "info": {
+    "singularName": "game-key",
+    "pluralName": "game-keys",
+    "displayName": "Game Key",
+    "description": "Stores individual game activation keys"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "code": {
+      "type": "string"
+    },
+    "isAvailable": {
+      "type": "boolean",
+      "default": true
+    },
+    "assignedAt": {
+      "type": "datetime"
+    },
+    "product": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::product.product",
+      "inversedBy": "gameKeys"
+    }
+  }
+}

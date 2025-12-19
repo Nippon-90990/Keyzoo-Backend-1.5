@@ -1,0 +1,59 @@
+{
+  "kind": "collectionType",
+  "collectionName": "order_items",
+  "info": {
+    "singularName": "order-item",
+    "pluralName": "order-items",
+    "displayName": "Order Item",
+    "description": "Individual items in a customer order"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "quantity": {
+      "type": "integer",
+      "required": true,
+      "default": 1
+    },
+    "priceAtPurchase": {
+      "type": "integer",
+      "required": true,
+      "description": "Price in smallest unit (paise, cents)"
+    },
+    "currency": {
+      "type": "enumeration",
+      "enum": [
+        "INR",
+        "USD",
+        "EUR",
+        "GBP"
+      ],
+      "default": "INR"
+    },
+    "snapshot": {
+      "type": "json",
+      "description": "Snapshot of product info at purchase (title, image, etc.)"
+    },
+    "deliveryStatus": {
+      "type": "enumeration",
+      "enum": [
+        "pending",
+        "delivered",
+        "failed"
+      ],
+      "default": "pending"
+    },
+    "assignedKeys": {
+      "type": "json",
+      "description": "Game keys assigned for this item"
+    },
+    "product": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::product.product",
+      "description": "Reference to the product ordered"
+    }
+  }
+}

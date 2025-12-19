@@ -1,0 +1,13 @@
+{
+  "collectionName": "components_game_language_subtitles_languages",
+  "info": {
+    "displayName": "Subtitles Language"
+  },
+  "options": {},
+  "attributes": {
+    "subtitles": {
+      "type": "string"
+    }
+  },
+  "config": {}
+}

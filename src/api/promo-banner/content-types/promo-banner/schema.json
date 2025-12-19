@@ -1,0 +1,28 @@
+{
+  "kind": "collectionType",
+  "collectionName": "promo_banners",
+  "info": {
+    "singularName": "promo-banner",
+    "pluralName": "promo-banners",
+    "displayName": "Promo Banner"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string"
+    },
+    "subtitle": {
+      "type": "string"
+    },
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images"
+      ]
+    }
+  }
+}

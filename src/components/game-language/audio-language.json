@@ -1,0 +1,13 @@
+{
+  "collectionName": "components_game_language_audio_languages",
+  "info": {
+    "displayName": "Audio Language"
+  },
+  "options": {},
+  "attributes": {
+    "audio": {
+      "type": "string"
+    }
+  },
+  "config": {}
+}

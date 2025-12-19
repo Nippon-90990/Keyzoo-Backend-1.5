@@ -1,0 +1,35 @@
+{
+  "kind": "collectionType",
+  "collectionName": "category_banners",
+  "info": {
+    "singularName": "category-banner",
+    "pluralName": "category-banners",
+    "displayName": "Category Banner"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string"
+    },
+    "subtitle": {
+      "type": "string"
+    },
+    "desktopImage": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "mobileImage": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images"
+      ]
+    }
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "collectionName": "components_slug_seo_tag_tags",
+  "info": {
+    "displayName": "Tag"
+  },
+  "options": {},
+  "attributes": {
+    "gametag_1": {
+      "type": "string"
+    },
+    "gametag_2": {
+      "type": "string"
+    },
+    "gametag_3": {
+      "type": "string"
+    },
+    "gametag_4": {
+      "type": "string"
+    },
+    "gametag_5": {
+      "type": "string"
+    },
+    "gametag_6": {
+      "type": "string"
+    },
+    "gametag_7": {
+      "type": "string"
+    },
+    "gametag_8": {
+      "type": "string"
+    },
+    "gametag_9": {
+      "type": "string"
+    },
+    "gametag_10": {
+      "type": "string"
+    }
+  },
+  "config": {}
+}

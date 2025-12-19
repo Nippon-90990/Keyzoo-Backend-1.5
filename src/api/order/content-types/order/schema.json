@@ -1,0 +1,106 @@
+{
+  "kind": "collectionType",
+  "collectionName": "orders",
+  "info": {
+    "singularName": "order",
+    "pluralName": "orders",
+    "displayName": "Order",
+    "description": "Orders placed by customers"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "orderNumber": {
+      "type": "string",
+      "unique": true
+    },
+    "totalAmount": {
+      "type": "integer"
+    },
+    "currency": {
+      "type": "enumeration",
+      "default": "INR",
+      "enum": [
+        "INR",
+        "USD",
+        "EUR",
+        "GBP"
+      ]
+    },
+    "paymentMethod": {
+      "type": "enumeration",
+      "enum": [
+        "card",
+        "upi",
+        "paypal",
+        "wallet",
+        "cod"
+      ]
+    },
+    "paymentProvider": {
+      "type": "string"
+    },
+    "paymentStatus": {
+      "type": "enumeration",
+      "default": "pending",
+      "enum": [
+        "pending",
+        "paid",
+        "failed",
+        "refunded"
+      ]
+    },
+    "stripeSessionId": {
+      "type": "string"
+    },
+    "stripePaymentIntentId": {
+      "type": "string"
+    },
+    "deliveryEmail": {
+      "type": "email"
+    },
+    "status": {
+      "type": "enumeration",
+      "default": "processing",
+      "enum": [
+        "processing",
+        "completed",
+        "cancelled",
+        "refunded"
+      ]
+    },
+    "deliveryStatus": {
+      "type": "enumeration",
+      "default": "pending",
+      "enum": [
+        "pending",
+        "keys_assigned",
+        "delivered",
+        "failed"
+      ]
+    },
+    "gameKeysAssigned": {
+      "type": "boolean",
+      "default": false
+    },
+    "deliveredAt": {
+      "type": "datetime"
+    },
+    "notes": {
+      "type": "text"
+    },
+    "cartSnapshot": {
+      "type": "json"
+    },
+    "user": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "assignedKeys": {
+      "type": "json"
+    }
+  }
+}

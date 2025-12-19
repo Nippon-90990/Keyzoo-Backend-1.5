@@ -1,0 +1,89 @@
+{
+  "kind": "collectionType",
+  "collectionName": "gift_card_variations",
+  "info": {
+    "singularName": "gift-card-variation",
+    "pluralName": "gift-card-variations",
+    "displayName": "Gift Card Variation"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "var_name": {
+      "type": "string"
+    },
+    "price": {
+      "type": "integer"
+    },
+    "discountPrice": {
+      "type": "integer"
+    },
+    "region": {
+      "type": "enumeration",
+      "enum": [
+        "Europe",
+        "United States",
+        "Global",
+        "Russia",
+        "United Kingdom",
+        "China",
+        "Row (Rest of World)",
+        "Latin America",
+        "Asia",
+        "Germany",
+        "Australia",
+        "Brazil",
+        "India",
+        "Japan",
+        "North America",
+        "Poland",
+        "Turkey",
+        "Hong Kong",
+        "Taiwan",
+        "Vietnam",
+        "Thailand",
+        "South Korea",
+        "Argentina",
+        "Canada",
+        "Denmark",
+        "Sweden"
+      ]
+    },
+    "workPlatform": {
+      "type": "enumeration",
+      "enum": [
+        "Windows",
+        "Steam",
+        "Epic Game",
+        "Xbox",
+        "PlayStation"
+      ]
+    },
+    "stock_status": {
+      "type": "enumeration",
+      "default": "Available",
+      "enum": [
+        "Available",
+        "Sold Out"
+      ]
+    },
+    "editiondescription": {
+      "type": "richtext"
+    },
+    "title": {
+      "type": "string"
+    },
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "Available": {
+      "type": "boolean"
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "collectionName": "components_game_requirements_recommendeds",
+  "info": {
+    "displayName": "Recommended Requirement",
+    "description": "Recommended system requirements for a game"
+  },
+  "attributes": {
+    "os": {
+      "type": "string"
+    },
+    "processor": {
+      "type": "string"
+    },
+    "memory": {
+      "type": "string"
+    },
+    "graphics": {
+      "type": "string"
+    },
+    "storage": {
+      "type": "string"
+    },
+    "sound": {
+      "type": "string"
+    },
+    "additional_notes": {
+      "type": "string"
+    }
+  }
+}

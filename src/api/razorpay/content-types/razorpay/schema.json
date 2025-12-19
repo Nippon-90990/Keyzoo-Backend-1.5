@@ -1,0 +1,14 @@
+{
+  "kind": "collectionType",
+  "collectionName": "razorpays",
+  "info": {
+    "singularName": "razorpay",
+    "pluralName": "razorpays",
+    "displayName": "Razorpay"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {}
+}

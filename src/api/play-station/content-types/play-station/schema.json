@@ -1,0 +1,210 @@
+{
+  "kind": "collectionType",
+  "collectionName": "play_stations",
+  "info": {
+    "singularName": "play-station",
+    "pluralName": "play-stations",
+    "displayName": "PlayStation"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string"
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "title"
+    },
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "card_region": {
+      "type": "enumeration",
+      "enum": [
+        "EUROPE",
+        "UNITED STATES",
+        "GLOBAL",
+        "RUSSIA",
+        "UNITED KINGDOM",
+        "CHINA",
+        "ROW (REST OF WORLD)",
+        "LATIN AMERICA",
+        "ASIA",
+        "GERMANY",
+        "AUSTRALIA",
+        "BRAZIL",
+        "INDIA",
+        "JAPAN",
+        "NORTH AMERICA",
+        "POLAND",
+        "TURKEY",
+        "HONG KONG",
+        "TAIWAN",
+        "VIETNAM",
+        "THAILAND",
+        "SOUTH KOREA",
+        "ARGENTINA",
+        "CANADA",
+        "DENMARK",
+        "SWEDEN"
+      ]
+    },
+    "price": {
+      "type": "decimal"
+    },
+    "discountPrice": {
+      "type": "decimal"
+    },
+    "notice": {
+      "type": "string"
+    },
+    "description": {
+      "type": "richtext"
+    },
+    "descriptionkey": {
+      "type": "richtext"
+    },
+    "publisher": {
+      "type": "string"
+    },
+    "developer": {
+      "type": "string"
+    },
+    "releaseDate": {
+      "type": "date"
+    },
+    "minimumRequirement": {
+      "type": "component",
+      "component": "game-requirements.minimum",
+      "repeatable": false
+    },
+    "recommendedRequirement": {
+      "type": "component",
+      "component": "game-requirements.recommended",
+      "repeatable": false
+    },
+    "seo": {
+      "type": "component",
+      "component": "shared.seo",
+      "repeatable": false
+    },
+    "audio_language": {
+      "type": "component",
+      "component": "game-language.audio-language",
+      "repeatable": false
+    },
+    "interface_language": {
+      "type": "component",
+      "component": "game-language.interface-language",
+      "repeatable": false
+    },
+    "subtitles_language": {
+      "type": "component",
+      "component": "game-language.subtitles-language",
+      "repeatable": false
+    },
+    "game_tag_seo": {
+      "type": "component",
+      "component": "slug-seo-tag.tag",
+      "repeatable": false
+    },
+    "gallery": {
+      "type": "media",
+      "multiple": true,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "age": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "region": {
+      "type": "enumeration",
+      "enum": [
+        "Europe",
+        "United states",
+        "Global",
+        "Russia",
+        "United kingdom",
+        "China",
+        "Row (rest of world)",
+        "Latin america",
+        "Asia",
+        "Germany",
+        "Australia",
+        "Brazil",
+        "India",
+        "Japan",
+        "North America",
+        "Poland",
+        "Turkey",
+        "Hong Kong",
+        "Taiwan",
+        "Vietnam",
+        "Thailand",
+        "South Korea",
+        "Argentina",
+        "Canada",
+        "Denmark",
+        "Sweden"
+      ]
+    },
+    "workPlatform": {
+      "type": "enumeration",
+      "enum": [
+        "Windows",
+        "Steam",
+        "Epic Game",
+        "Xbox",
+        "PlayStation"
+      ]
+    },
+    "item_type": {
+      "type": "enumeration",
+      "default": "GIFT CARD",
+      "enum": [
+        "GAME",
+        "GIFT CARD"
+      ]
+    },
+    "item": {
+      "type": "enumeration",
+      "default": "DIGITAL KEY",
+      "enum": [
+        "DIGITAL KEY"
+      ]
+    },
+    "editiondescription": {
+      "type": "richtext"
+    },
+    "Available": {
+      "type": "boolean"
+    },
+    "platform_image": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "var_title": {
+      "type": "string"
+    },
+    "relatedProducts": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::play-station.play-station"
+    }
+  }
+}
