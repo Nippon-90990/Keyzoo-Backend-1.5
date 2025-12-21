@@ -694,6 +694,39 @@ export interface ApiCheckoutCheckout extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiCookiePolicyCookiePolicy
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'cookie_policies';
+  info: {
+    displayName: 'Cookie Policy';
+    pluralName: 'cookie-policies';
+    singularName: 'cookie-policy';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    content: Schema.Attribute.RichText;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::cookie-policy.cookie-policy'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    seo_description: Schema.Attribute.Text;
+    seo_title: Schema.Attribute.String;
+    title: Schema.Attribute.String &
+      Schema.Attribute.DefaultTo<'Terms & Conditions'>;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface ApiGameBannerGameBanner extends Struct.CollectionTypeSchema {
   collectionName: 'game_banners';
   info: {
@@ -1398,6 +1431,39 @@ export interface ApiPlayStationPlayStation extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiPrivacyPolicyPrivacyPolicy
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'privacy_policies';
+  info: {
+    displayName: 'Privacy Policy';
+    pluralName: 'privacy-policies';
+    singularName: 'privacy-policy';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    content: Schema.Attribute.RichText;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::privacy-policy.privacy-policy'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    seo_description: Schema.Attribute.Text;
+    seo_title: Schema.Attribute.String;
+    title: Schema.Attribute.String &
+      Schema.Attribute.DefaultTo<'Terms & Conditions'>;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface ApiProductProduct extends Struct.CollectionTypeSchema {
   collectionName: 'products';
   info: {
@@ -1599,6 +1665,40 @@ export interface ApiRazorpayRazorpay extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiRefundReturnPolicyRefundReturnPolicy
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'refund_return_policies';
+  info: {
+    displayName: 'Refund / Return Policy';
+    pluralName: 'refund-return-policies';
+    singularName: 'refund-return-policy';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    content: Schema.Attribute.RichText;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::refund-return-policy.refund-return-policy'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    seo_description: Schema.Attribute.Text;
+    seo_title: Schema.Attribute.String;
+    tagline: Schema.Attribute.String;
+    title: Schema.Attribute.String &
+      Schema.Attribute.DefaultTo<'Terms & Conditions'>;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface ApiRobloxGiftCardRobloxGiftCard
   extends Struct.CollectionTypeSchema {
   collectionName: 'roblox_gift_cards';
@@ -1734,6 +1834,39 @@ export interface ApiRobloxGiftCardRobloxGiftCard
     workPlatform: Schema.Attribute.Enumeration<
       ['Windows', 'Steam', 'Epic Game', 'Xbox', 'PlayStation']
     >;
+  };
+}
+
+export interface ApiShippingPolicyShippingPolicy
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'shipping_policies';
+  info: {
+    displayName: 'Shipping Policy';
+    pluralName: 'shipping-policies';
+    singularName: 'shipping-policy';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    content: Schema.Attribute.RichText;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::shipping-policy.shipping-policy'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    seo_description: Schema.Attribute.Text;
+    seo_title: Schema.Attribute.String;
+    title: Schema.Attribute.String &
+      Schema.Attribute.DefaultTo<'Terms & Conditions'>;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
   };
 }
 
@@ -2061,6 +2194,39 @@ export interface ApiStripeStripe extends Struct.CollectionTypeSchema {
     > &
       Schema.Attribute.Private;
     publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
+export interface ApiTermsAndConditionTermsAndCondition
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'terms_and_conditions';
+  info: {
+    displayName: 'Terms & Conditions';
+    pluralName: 'terms-and-conditions';
+    singularName: 'terms-and-condition';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    content: Schema.Attribute.RichText;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::terms-and-condition.terms-and-condition'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    seo_description: Schema.Attribute.Text;
+    seo_title: Schema.Attribute.String;
+    title: Schema.Attribute.String &
+      Schema.Attribute.DefaultTo<'Terms & Conditions'>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -2720,6 +2886,7 @@ declare module '@strapi/strapi' {
       'api::category-banner.category-banner': ApiCategoryBannerCategoryBanner;
       'api::category.category': ApiCategoryCategory;
       'api::checkout.checkout': ApiCheckoutCheckout;
+      'api::cookie-policy.cookie-policy': ApiCookiePolicyCookiePolicy;
       'api::game-banner.game-banner': ApiGameBannerGameBanner;
       'api::game-key.game-key': ApiGameKeyGameKey;
       'api::gift-card-variation.gift-card-variation': ApiGiftCardVariationGiftCardVariation;
@@ -2730,14 +2897,18 @@ declare module '@strapi/strapi' {
       'api::order.order': ApiOrderOrder;
       'api::play-station-gift-card.play-station-gift-card': ApiPlayStationGiftCardPlayStationGiftCard;
       'api::play-station.play-station': ApiPlayStationPlayStation;
+      'api::privacy-policy.privacy-policy': ApiPrivacyPolicyPrivacyPolicy;
       'api::product.product': ApiProductProduct;
       'api::promo-banner.promo-banner': ApiPromoBannerPromoBanner;
       'api::razorpay.razorpay': ApiRazorpayRazorpay;
+      'api::refund-return-policy.refund-return-policy': ApiRefundReturnPolicyRefundReturnPolicy;
       'api::roblox-gift-card.roblox-gift-card': ApiRobloxGiftCardRobloxGiftCard;
+      'api::shipping-policy.shipping-policy': ApiShippingPolicyShippingPolicy;
       'api::site.site': ApiSiteSite;
       'api::spotify-gift-card.spotify-gift-card': ApiSpotifyGiftCardSpotifyGiftCard;
       'api::steam-gift-card.steam-gift-card': ApiSteamGiftCardSteamGiftCard;
       'api::stripe.stripe': ApiStripeStripe;
+      'api::terms-and-condition.terms-and-condition': ApiTermsAndConditionTermsAndCondition;
       'api::xbox-gift-card.xbox-gift-card': ApiXboxGiftCardXboxGiftCard;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;

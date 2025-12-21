@@ -1,0 +1,31 @@
+{
+  "kind": "collectionType",
+  "collectionName": "refund_return_policies",
+  "info": {
+    "singularName": "refund-return-policy",
+    "pluralName": "refund-return-policies",
+    "displayName": "Refund / Return Policy"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "default": "Terms & Conditions"
+    },
+    "content": {
+      "type": "richtext"
+    },
+    "seo_title": {
+      "type": "string"
+    },
+    "seo_description": {
+      "type": "text"
+    },
+    "tagline": {
+      "type": "string"
+    }
+  }
+}
