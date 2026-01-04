@@ -1546,11 +1546,13 @@ export interface ApiProductProduct extends Struct.CollectionTypeSchema {
       false
     >;
     notice: Schema.Attribute.String;
-    platform_image: Schema.Attribute.Media<'images'>;
+    platform_image: Schema.Attribute.String;
+    platformIcons: Schema.Attribute.String;
     price: Schema.Attribute.Decimal;
     psn: Schema.Attribute.Boolean;
     publishedAt: Schema.Attribute.DateTime;
     publisher: Schema.Attribute.String;
+    rating: Schema.Attribute.Integer;
     recommendedRequirement: Schema.Attribute.Component<
       'game-requirements.recommended',
       false

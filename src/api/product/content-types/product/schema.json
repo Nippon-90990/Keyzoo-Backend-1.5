@@ -193,13 +193,6 @@
       "type": "boolean",
       "default": true
     },
-    "platform_image": {
-      "type": "media",
-      "multiple": false,
-      "allowedTypes": [
-        "images"
-      ]
-    },
     "relatedProducts": {
       "type": "relation",
       "relation": "oneToMany",
@@ -232,6 +225,15 @@
     },
     "psn": {
       "type": "boolean"
+    },
+    "platformIcons": {
+      "type": "string"
+    },
+    "platform_image": {
+      "type": "string"
+    },
+    "rating": {
+      "type": "integer"
     }
   }
 }
