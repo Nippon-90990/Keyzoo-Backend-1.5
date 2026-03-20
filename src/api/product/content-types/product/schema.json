@@ -234,6 +234,11 @@
     },
     "rating": {
       "type": "integer"
+    },
+    "relatedRegionProducts": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::product.product"
     }
   }
 }

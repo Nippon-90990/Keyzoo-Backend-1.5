@@ -1591,6 +1591,10 @@ export interface ApiProductProduct extends Struct.CollectionTypeSchema {
       'oneToMany',
       'api::product.product'
     >;
+    relatedRegionProducts: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::product.product'
+    >;
     releaseDate: Schema.Attribute.Date;
     seo: Schema.Attribute.Component<'shared.seo', false>;
     slug: Schema.Attribute.UID<'title'>;
@@ -1916,6 +1920,7 @@ export interface ApiSpotifyGiftCardSpotifyGiftCard
       false
     >;
     Available: Schema.Attribute.Boolean;
+    banner_image: Schema.Attribute.Media<'images'>;
     card_region: Schema.Attribute.Enumeration<
       [
         'EUROPE',

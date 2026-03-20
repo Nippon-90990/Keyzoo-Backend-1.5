@@ -205,6 +205,13 @@
       "type": "relation",
       "relation": "oneToMany",
       "target": "api::play-station.play-station"
+    },
+    "banner_image": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images"
+      ]
     }
   }
 }
