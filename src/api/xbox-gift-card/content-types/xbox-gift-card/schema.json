@@ -204,7 +204,12 @@
     "relatedProducts": {
       "type": "relation",
       "relation": "oneToMany",
-      "target": "api::play-station.play-station"
+      "target": "api::xbox-gift-card.xbox-gift-card"
+    },
+    "relatedRegionProducts": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::xbox-gift-card.xbox-gift-card"
     }
   }
 }

@@ -15,10 +15,10 @@
     "upgrade:dry": "npx @strapi/upgrade latest --dry"
   },
   "dependencies": {
-    "@strapi/plugin-cloud": "5.33.0",
-    "@strapi/plugin-users-permissions": "5.33.0",
+    "@strapi/plugin-cloud": "5.40.0",
+    "@strapi/plugin-users-permissions": "5.40.0",
     "@strapi/provider-upload-cloudinary": "^5.33.1",
-    "@strapi/strapi": "5.33.0",
+    "@strapi/strapi": "5.40.0",
     "better-sqlite3": "12.4.1",
     "pg": "^8.16.3",
     "razorpay": "^2.9.6",
