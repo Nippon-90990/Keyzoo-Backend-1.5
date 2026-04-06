@@ -8,7 +8,7 @@ const { Resend } = require("resend");
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 function generateEmailTemplate(order, cartItems, assignedKeys) {
-  
+
   const orderDate = new Date().toLocaleDateString("en-IN", {
     day: "2-digit",
     month: "long",
@@ -28,7 +28,7 @@ function generateEmailTemplate(order, cartItems, assignedKeys) {
             <strong>${item.title}</strong><br/>
             Quantity: ${item.quantity}<br/>
             Price: ₹${item.price}<br/>
-            Keys:<br/> ${keysForProduct || "Pending"}
+            Keys:<br/> ${keysForProduct || "<span style='color:orange;'>Pending delivery</span>"}
           </td>
         </tr>`;
     })
@@ -128,7 +128,7 @@ module.exports = createCoreController("api::order.order", ({ strapi }) => ({
       // 1. Create Order
       const order = await strapi.entityService.create("api::order.order", {
         data: {
-          orderNumber: `STORD-${Date.now()}-${Math.floor(Math.random()*1000)}`,
+          orderNumber: `STORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
           totalAmount: session.amount_total,
           currency: session.currency?.toUpperCase() || "INR",
           paymentMethod: session.payment_method_types?.[0] || "card",
@@ -180,151 +180,50 @@ module.exports = createCoreController("api::order.order", ({ strapi }) => ({
         }
       }
 
+      const totalRequiredKeys = cartItems.reduce(
+        (sum, item) => sum + item.quantity,
+        0
+      );
+
       // 3. Update Order Delivery Info
+      let deliveryStatus;
+
+      if (assignedKeys.length === 0) {
+        deliveryStatus = "pending";
+      } else if (assignedKeys.length < totalRequiredKeys) {
+        deliveryStatus = "partial";
+      } else {
+        deliveryStatus = "completed";
+      }
+
       await strapi.db.query("api::order.order").update({
         where: { id: order.id },
         data: {
-          deliveryStatus: assignedKeys.length > 0 ? "delivered" : "pending",
-          manualDeliveryRequired: assignedKeys.length < cartItems.length,
+          deliveryStatus,
+          manualDeliveryRequired: assignedKeys.length < totalRequiredKeys,
           gameKeysAssigned: assignedKeys.length > 0,
-          deliveredAt: assignedKeys.length > 0 ? new Date() : null,
-          assignedKeys, // ✅ save assigned keys JSON
+          deliveredAt: deliveryStatus === "completed" ? new Date() : null,
+          assignedKeys,
+          totalKeysRequired: totalRequiredKeys,
+          totalKeysAssigned: assignedKeys.length,
         },
       });
 
       // 4. Send Email with Keys
-      // if (order.deliveryEmail && assignedKeys.length > 0) {
-      //   const keysHtml = assignedKeys
-      //     .map(k => `<p><strong>${k.product}</strong>: ${k.key}</p>`)
-      //     .join("");
-
-      //   await resend.emails.send({
-      //     from: "onboarding@resend.dev",
-      //     to: order.deliveryEmail,
-      //     subject: `Your Game Keys - Order #${order.orderNumber}`,
-      //     html: `
-      //       <h2>Thank you for your purchase!</h2>
-      //       <p>Here are your keys:</p>
-      //       ${keysHtml}
-      //     `,
-      //   });
-
-      //   strapi.log.info(`📩 Keys sent to ${order.deliveryEmail}`);
-      // } else {
-      //   strapi.log.warn("⚠️ No keys assigned, email skipped.");
-      // }
-
-      // 4. Send Email with Keys
-      if (order.deliveryEmail && assignedKeys.length > 0) {
-        // const orderDate = new Date().toLocaleDateString("en-IN", {
-        //   day: "2-digit",
-        //   month: "long",
-        //   year: "numeric",
-        // });
-
-        //       const itemsHtml = cartItems
-        //         .map(
-        //           (item) => {
-        //             const keysForProduct = assignedKeys
-        //               .filter((k) => k.product === item.title)
-        //               .map((k) => `<span style="color:#008000;">${k.key}</span>`)
-        //               .join("<br/>");
-
-        //             return `
-        //       <tr>
-        //         <td style="padding:15px; border-bottom:1px solid #eee;">
-        //           <strong>${item.title}</strong><br/>
-        //           Quantity: ${item.quantity}<br/>
-        //           Price: ₹${item.price}<br/>
-        //           Keys:<br/> ${keysForProduct}
-        //         </td>
-        //       </tr>`;
-        //           }
-        //         )
-        //         .join("");
-
-        //       const htmlTemplate = `
-        // <html>
-        //   <body style="font-family: Arial, sans-serif; background:#ffffff; margin:0; padding:0;">
-        //     <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        //       <tr>
-        //         <td align="center">
-        //           <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px; margin:0 auto;">
-
-        //             <!-- Header -->
-        //             <tr>
-        //               <td style="padding:20px; text-align:left;">
-        //                 <img src="https://yourcdn.com/logo.png" alt="Logo" height="30"/>
-        //               </td>
-        //               <td style="padding:20px; text-align:right; font-size:12px; color:#555;">
-        //                 ${orderDate}
-        //               </td>
-        //             </tr>
-
-        //             <!-- Hero -->
-        //             <tr>
-        //               <td colspan="2" style="padding:20px; text-align:center;">
-        //                 <h2 style="margin:0; font-size:22px; color:#000;">Here are your keys 🎉</h2>
-        //                 <p style="font-size:14px; color:#555; line-height:20px;">
-        //                   Thank you for your purchase. Below are your game keys.
-        //                 </p>
-        //                 <a href="${process.env.FRONTEND_URL}/orders/${order.id}"
-        //                    style="display:inline-block; padding:12px 24px; background:#000; color:#fff; text-decoration:none; font-weight:bold; border-radius:4px;">
-        //                   View Order
-        //                 </a>
-        //               </td>
-        //             </tr>
-
-        //             <!-- Order Info -->
-        //             <tr>
-        //               <td colspan="2" style="padding:20px; border-top:1px solid #eee; border-bottom:1px solid #eee;">
-        //                 <table width="100%">
-        //                   <tr>
-        //                     <td style="font-size:14px; color:#555;">
-        //                       <strong style="color:#000;">Order number</strong><br/> ${order.orderNumber}
-        //                     </td>
-        //                     <td style="font-size:14px; color:#555; text-align:right;">
-        //                       <strong style="color:#000;">Order date</strong><br/> ${orderDate}
-        //                     </td>
-        //                   </tr>
-        //                 </table>
-        //               </td>
-        //             </tr>
-
-        //             <!-- Items -->
-        //             ${itemsHtml}
-
-        //             <!-- Footer -->
-        //             <tr>
-        //               <td colspan="2" style="background:#000; color:#fff; padding:20px; font-size:12px; text-align:center;">
-        //                 <p style="margin:0;">📩 For support, contact us at 
-        //                   <a href="mailto:support@yourbrand.com" style="color:#fff;">support@yourbrand.com</a>
-        //                 </p>
-        //                 <p style="margin:10px 0 0;">&copy; 2025 YourBrand. All rights reserved.</p>
-        //               </td>
-        //             </tr>
-
-        //           </table>
-        //         </td>
-        //       </tr>
-        //     </table>
-        //   </body>
-        // </html>`;
+      if (order.deliveryEmail) {
 
         const htmlTemplate = generateEmailTemplate(order, cartItems, assignedKeys);
 
         await resend.emails.send({
-          // from: "onboarding@resend.dev",
-          // to: order.deliveryEmail,
           from: "Keyzoo <noreply@mail.quickcheckout.in>",
           to: order.deliveryEmail,
-          subject: `Your Game Keys - Order #${order.orderNumber}`,
+          subject: assignedKeys.length > 0
+            ? `Your Game Keys - Order #${order.orderNumber}`
+            : `Order Confirmed - Keys will be delivered soon (#${order.orderNumber})`,
           html: htmlTemplate,
         });
 
-        strapi.log.info(`📩 Fancy email sent to ${order.deliveryEmail}`);
-      } else {
-        strapi.log.warn("⚠️ No keys assigned, email skipped.");
+        strapi.log.info(`📩 Email sent to ${order.deliveryEmail}`);
       }
 
     } catch (err) {
@@ -350,7 +249,7 @@ module.exports = createCoreController("api::order.order", ({ strapi }) => ({
     await strapi.entityService.update("api::order.order", orderId, {
       data: {
         assignedKeys: keys,
-        deliveryStatus: "delivered",
+        deliveryStatus: "completed",
         deliveredAt: new Date(),
         manualDeliveryRequired: false, // 🔥 IMPORTANT
       },
@@ -365,7 +264,7 @@ module.exports = createCoreController("api::order.order", ({ strapi }) => ({
 
     // send email
     await resend.emails.send({
-      from: "onboarding@resend.dev",
+      from: "Keyzoo <noreply@mail.quickcheckout.in>",
       to: order.deliveryEmail,
       subject: `Your Game Keys - Order #${order.orderNumber}`,
       html: htmlTemplate,

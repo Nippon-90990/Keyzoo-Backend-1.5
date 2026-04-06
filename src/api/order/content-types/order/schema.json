@@ -76,8 +76,8 @@
       "default": "pending",
       "enum": [
         "pending",
-        "keys_assigned",
-        "delivered",
+        "partial",
+        "completed",
         "failed"
       ]
     },
@@ -105,6 +105,12 @@
     "manualDeliveryRequired": {
       "type": "boolean",
       "default": false
+    },
+    "totalKeysRequired": {
+      "type": "integer"
+    },
+    "totalKeysAssigned": {
+      "type": "integer"
     }
   }
 }

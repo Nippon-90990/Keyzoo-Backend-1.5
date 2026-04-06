@@ -1120,7 +1120,7 @@ export interface ApiOrderOrder extends Struct.CollectionTypeSchema {
     deliveredAt: Schema.Attribute.DateTime;
     deliveryEmail: Schema.Attribute.Email;
     deliveryStatus: Schema.Attribute.Enumeration<
-      ['pending', 'keys_assigned', 'delivered', 'failed']
+      ['pending', 'partial', 'completed', 'failed']
     > &
       Schema.Attribute.DefaultTo<'pending'>;
     gameKeysAssigned: Schema.Attribute.Boolean &
@@ -1148,6 +1148,8 @@ export interface ApiOrderOrder extends Struct.CollectionTypeSchema {
     stripePaymentIntentId: Schema.Attribute.String;
     stripeSessionId: Schema.Attribute.String;
     totalAmount: Schema.Attribute.Integer;
+    totalKeysAssigned: Schema.Attribute.Integer;
+    totalKeysRequired: Schema.Attribute.Integer;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
