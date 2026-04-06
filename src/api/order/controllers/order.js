@@ -7,6 +7,77 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const { Resend } = require("resend");
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+function generateEmailTemplate(order, cartItems, assignedKeys) {
+  
+  const orderDate = new Date().toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  });
+
+  const itemsHtml = cartItems
+    .map((item) => {
+      const keysForProduct = assignedKeys
+        .filter((k) => k.product === item.title)
+        .map((k) => `<span style="color:#008000;">${k.key}</span>`)
+        .join("<br/>");
+
+      return `
+        <tr>
+          <td style="padding:15px; border-bottom:1px solid #eee;">
+            <strong>${item.title}</strong><br/>
+            Quantity: ${item.quantity}<br/>
+            Price: ₹${item.price}<br/>
+            Keys:<br/> ${keysForProduct || "Pending"}
+          </td>
+        </tr>`;
+    })
+    .join("");
+
+  return `
+  <html>
+    <body style="font-family: Arial, sans-serif; background:#ffffff; margin:0; padding:0;">
+      <table width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+          <td align="center">
+            <table width="600" style="max-width:600px; margin:0 auto;">
+              
+              <tr>
+                <td style="padding:20px;">
+                  <img src="https://yourcdn.com/logo.png" height="30"/>
+                </td>
+                <td style="padding:20px; text-align:right; font-size:12px;">
+                  ${orderDate}
+                </td>
+              </tr>
+
+              <tr>
+                <td colspan="2" style="padding:20px; text-align:center;">
+                  <h2>Here are your keys 🎉</h2>
+                  <p>Thank you for your purchase.</p>
+                  <a href="${process.env.FRONTEND_URL}/orders/${order.id}"
+                     style="padding:10px 20px; background:#000; color:#fff; text-decoration:none;">
+                    View Order
+                  </a>
+                </td>
+              </tr>
+
+              ${itemsHtml}
+
+              <tr>
+                <td colspan="2" style="background:#000; color:#fff; padding:20px; text-align:center;">
+                  Support: support@yourbrand.com
+                </td>
+              </tr>
+
+            </table>
+          </td>
+        </tr>
+      </table>
+    </body>
+  </html>`;
+}
+
 // @ts-ignore
 const { createCoreController } = require("@strapi/strapi").factories;
 
@@ -45,10 +116,19 @@ module.exports = createCoreController("api::order.order", ({ strapi }) => ({
         throw new Error("Cart metadata missing or invalid.");
       }
 
+      const existing = await strapi.db.query("api::order.order").findOne({
+        where: { stripeSessionId: session.id },
+      });
+
+      if (existing) {
+        strapi.log.warn("⚠️ Duplicate webhook ignored");
+        return ctx.send({ received: true });
+      }
+
       // 1. Create Order
       const order = await strapi.entityService.create("api::order.order", {
         data: {
-          orderNumber: `ORD-${Date.now()}`,
+          orderNumber: `STORD-${Date.now()}-${Math.floor(Math.random()*1000)}`,
           totalAmount: session.amount_total,
           currency: session.currency?.toUpperCase() || "INR",
           paymentMethod: session.payment_method_types?.[0] || "card",
@@ -105,6 +185,7 @@ module.exports = createCoreController("api::order.order", ({ strapi }) => ({
         where: { id: order.id },
         data: {
           deliveryStatus: assignedKeys.length > 0 ? "delivered" : "pending",
+          manualDeliveryRequired: assignedKeys.length < cartItems.length,
           gameKeysAssigned: assignedKeys.length > 0,
           deliveredAt: assignedKeys.length > 0 ? new Date() : null,
           assignedKeys, // ✅ save assigned keys JSON
@@ -135,103 +216,107 @@ module.exports = createCoreController("api::order.order", ({ strapi }) => ({
 
       // 4. Send Email with Keys
       if (order.deliveryEmail && assignedKeys.length > 0) {
-        const orderDate = new Date().toLocaleDateString("en-IN", {
-          day: "2-digit",
-          month: "long",
-          year: "numeric",
-        });
+        // const orderDate = new Date().toLocaleDateString("en-IN", {
+        //   day: "2-digit",
+        //   month: "long",
+        //   year: "numeric",
+        // });
 
-        const itemsHtml = cartItems
-          .map(
-            (item) => {
-              const keysForProduct = assignedKeys
-                .filter((k) => k.product === item.title)
-                .map((k) => `<span style="color:#008000;">${k.key}</span>`)
-                .join("<br/>");
+        //       const itemsHtml = cartItems
+        //         .map(
+        //           (item) => {
+        //             const keysForProduct = assignedKeys
+        //               .filter((k) => k.product === item.title)
+        //               .map((k) => `<span style="color:#008000;">${k.key}</span>`)
+        //               .join("<br/>");
 
-              return `
-        <tr>
-          <td style="padding:15px; border-bottom:1px solid #eee;">
-            <strong>${item.title}</strong><br/>
-            Quantity: ${item.quantity}<br/>
-            Price: ₹${item.price}<br/>
-            Keys:<br/> ${keysForProduct}
-          </td>
-        </tr>`;
-            }
-          )
-          .join("");
+        //             return `
+        //       <tr>
+        //         <td style="padding:15px; border-bottom:1px solid #eee;">
+        //           <strong>${item.title}</strong><br/>
+        //           Quantity: ${item.quantity}<br/>
+        //           Price: ₹${item.price}<br/>
+        //           Keys:<br/> ${keysForProduct}
+        //         </td>
+        //       </tr>`;
+        //           }
+        //         )
+        //         .join("");
 
-        const htmlTemplate = `
-  <html>
-    <body style="font-family: Arial, sans-serif; background:#ffffff; margin:0; padding:0;">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td align="center">
-            <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px; margin:0 auto;">
-              
-              <!-- Header -->
-              <tr>
-                <td style="padding:20px; text-align:left;">
-                  <img src="https://yourcdn.com/logo.png" alt="Logo" height="30"/>
-                </td>
-                <td style="padding:20px; text-align:right; font-size:12px; color:#555;">
-                  ${orderDate}
-                </td>
-              </tr>
+        //       const htmlTemplate = `
+        // <html>
+        //   <body style="font-family: Arial, sans-serif; background:#ffffff; margin:0; padding:0;">
+        //     <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        //       <tr>
+        //         <td align="center">
+        //           <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px; margin:0 auto;">
 
-              <!-- Hero -->
-              <tr>
-                <td colspan="2" style="padding:20px; text-align:center;">
-                  <h2 style="margin:0; font-size:22px; color:#000;">Here are your keys 🎉</h2>
-                  <p style="font-size:14px; color:#555; line-height:20px;">
-                    Thank you for your purchase. Below are your game keys.
-                  </p>
-                  <a href="${process.env.FRONTEND_URL}/orders/${order.id}"
-                     style="display:inline-block; padding:12px 24px; background:#000; color:#fff; text-decoration:none; font-weight:bold; border-radius:4px;">
-                    View Order
-                  </a>
-                </td>
-              </tr>
+        //             <!-- Header -->
+        //             <tr>
+        //               <td style="padding:20px; text-align:left;">
+        //                 <img src="https://yourcdn.com/logo.png" alt="Logo" height="30"/>
+        //               </td>
+        //               <td style="padding:20px; text-align:right; font-size:12px; color:#555;">
+        //                 ${orderDate}
+        //               </td>
+        //             </tr>
 
-              <!-- Order Info -->
-              <tr>
-                <td colspan="2" style="padding:20px; border-top:1px solid #eee; border-bottom:1px solid #eee;">
-                  <table width="100%">
-                    <tr>
-                      <td style="font-size:14px; color:#555;">
-                        <strong style="color:#000;">Order number</strong><br/> ${order.orderNumber}
-                      </td>
-                      <td style="font-size:14px; color:#555; text-align:right;">
-                        <strong style="color:#000;">Order date</strong><br/> ${orderDate}
-                      </td>
-                    </tr>
-                  </table>
-                </td>
-              </tr>
+        //             <!-- Hero -->
+        //             <tr>
+        //               <td colspan="2" style="padding:20px; text-align:center;">
+        //                 <h2 style="margin:0; font-size:22px; color:#000;">Here are your keys 🎉</h2>
+        //                 <p style="font-size:14px; color:#555; line-height:20px;">
+        //                   Thank you for your purchase. Below are your game keys.
+        //                 </p>
+        //                 <a href="${process.env.FRONTEND_URL}/orders/${order.id}"
+        //                    style="display:inline-block; padding:12px 24px; background:#000; color:#fff; text-decoration:none; font-weight:bold; border-radius:4px;">
+        //                   View Order
+        //                 </a>
+        //               </td>
+        //             </tr>
 
-              <!-- Items -->
-              ${itemsHtml}
+        //             <!-- Order Info -->
+        //             <tr>
+        //               <td colspan="2" style="padding:20px; border-top:1px solid #eee; border-bottom:1px solid #eee;">
+        //                 <table width="100%">
+        //                   <tr>
+        //                     <td style="font-size:14px; color:#555;">
+        //                       <strong style="color:#000;">Order number</strong><br/> ${order.orderNumber}
+        //                     </td>
+        //                     <td style="font-size:14px; color:#555; text-align:right;">
+        //                       <strong style="color:#000;">Order date</strong><br/> ${orderDate}
+        //                     </td>
+        //                   </tr>
+        //                 </table>
+        //               </td>
+        //             </tr>
 
-              <!-- Footer -->
-              <tr>
-                <td colspan="2" style="background:#000; color:#fff; padding:20px; font-size:12px; text-align:center;">
-                  <p style="margin:0;">📩 For support, contact us at 
-                    <a href="mailto:support@yourbrand.com" style="color:#fff;">support@yourbrand.com</a>
-                  </p>
-                  <p style="margin:10px 0 0;">&copy; 2025 YourBrand. All rights reserved.</p>
-                </td>
-              </tr>
+        //             <!-- Items -->
+        //             ${itemsHtml}
 
-            </table>
-          </td>
-        </tr>
-      </table>
-    </body>
-  </html>`;
+        //             <!-- Footer -->
+        //             <tr>
+        //               <td colspan="2" style="background:#000; color:#fff; padding:20px; font-size:12px; text-align:center;">
+        //                 <p style="margin:0;">📩 For support, contact us at 
+        //                   <a href="mailto:support@yourbrand.com" style="color:#fff;">support@yourbrand.com</a>
+        //                 </p>
+        //                 <p style="margin:10px 0 0;">&copy; 2025 YourBrand. All rights reserved.</p>
+        //               </td>
+        //             </tr>
+
+        //           </table>
+        //         </td>
+        //       </tr>
+        //     </table>
+        //   </body>
+        // </html>`;
+
+        const htmlTemplate = generateEmailTemplate(order, cartItems, assignedKeys);
 
         await resend.emails.send({
-          from: "onboarding@resend.dev",
+          // from: "onboarding@resend.dev",
+          // to: order.deliveryEmail,
+          from: "Keyzoo <noreply@mail.quickcheckout.in>",
           to: order.deliveryEmail,
           subject: `Your Game Keys - Order #${order.orderNumber}`,
           html: htmlTemplate,
@@ -248,6 +333,45 @@ module.exports = createCoreController("api::order.order", ({ strapi }) => ({
     }
 
     ctx.send({ received: true });
+  },
+  async sendKeysManually(ctx) {
+
+    const { orderId, keys } = ctx.request.body;
+
+    if (!orderId || !keys || !Array.isArray(keys) || keys.length === 0) {
+      return ctx.badRequest("Invalid data");
+    }
+
+    const order = await strapi.entityService.findOne("api::order.order", orderId);
+
+    if (!order) return ctx.notFound("Order not found");
+
+    // update order
+    await strapi.entityService.update("api::order.order", orderId, {
+      data: {
+        assignedKeys: keys,
+        deliveryStatus: "delivered",
+        deliveredAt: new Date(),
+        manualDeliveryRequired: false, // 🔥 IMPORTANT
+      },
+    });
+
+    const formattedKeys = keys.map(k => ({
+      product: "Manual Delivery",
+      key: k
+    }));
+
+    const htmlTemplate = generateEmailTemplate(order, order.cartSnapshot, formattedKeys);
+
+    // send email
+    await resend.emails.send({
+      from: "onboarding@resend.dev",
+      to: order.deliveryEmail,
+      subject: `Your Game Keys - Order #${order.orderNumber}`,
+      html: htmlTemplate,
+    });
+
+    return ctx.send({ success: true });
   },
   async razorpaySuccess(ctx) {
     try {

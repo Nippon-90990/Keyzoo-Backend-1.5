@@ -1128,6 +1128,8 @@ export interface ApiOrderOrder extends Struct.CollectionTypeSchema {
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<'oneToMany', 'api::order.order'> &
       Schema.Attribute.Private;
+    manualDeliveryRequired: Schema.Attribute.Boolean &
+      Schema.Attribute.DefaultTo<false>;
     notes: Schema.Attribute.Text;
     orderNumber: Schema.Attribute.String & Schema.Attribute.Unique;
     paymentMethod: Schema.Attribute.Enumeration<
@@ -1602,6 +1604,10 @@ export interface ApiProductProduct extends Struct.CollectionTypeSchema {
     releaseDate: Schema.Attribute.Date;
     seo: Schema.Attribute.Component<'shared.seo', false>;
     slug: Schema.Attribute.UID<'title'>;
+    stock_alerts: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::stock-alert.stock-alert'
+    >;
     stock_stetus: Schema.Attribute.Enumeration<['Availavle', 'Sold Out']>;
     subtitles_language: Schema.Attribute.Component<
       'game-language.subtitles-language',
@@ -2179,6 +2185,38 @@ export interface ApiSteamGiftCardSteamGiftCard
     var_title: Schema.Attribute.String;
     workPlatform: Schema.Attribute.Enumeration<
       ['Windows', 'Steam', 'Epic Game', 'Xbox', 'PlayStation']
+    >;
+  };
+}
+
+export interface ApiStockAlertStockAlert extends Struct.CollectionTypeSchema {
+  collectionName: 'stock_alerts';
+  info: {
+    displayName: 'Stock Alert';
+    pluralName: 'stock-alerts';
+    singularName: 'stock-alert';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::stock-alert.stock-alert'
+    > &
+      Schema.Attribute.Private;
+    product: Schema.Attribute.Relation<'manyToOne', 'api::product.product'>;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    user: Schema.Attribute.Relation<
+      'manyToOne',
+      'plugin::users-permissions.user'
     >;
   };
 }
@@ -2842,7 +2880,6 @@ export interface PluginUsersPermissionsUser
   };
   options: {
     draftAndPublish: false;
-    timestamps: true;
   };
   attributes: {
     blocked: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
@@ -2873,6 +2910,10 @@ export interface PluginUsersPermissionsUser
     role: Schema.Attribute.Relation<
       'manyToOne',
       'plugin::users-permissions.role'
+    >;
+    stock_alerts: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::stock-alert.stock-alert'
     >;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
@@ -2923,6 +2964,7 @@ declare module '@strapi/strapi' {
       'api::site.site': ApiSiteSite;
       'api::spotify-gift-card.spotify-gift-card': ApiSpotifyGiftCardSpotifyGiftCard;
       'api::steam-gift-card.steam-gift-card': ApiSteamGiftCardSteamGiftCard;
+      'api::stock-alert.stock-alert': ApiStockAlertStockAlert;
       'api::stripe.stripe': ApiStripeStripe;
       'api::terms-and-condition.terms-and-condition': ApiTermsAndConditionTermsAndCondition;
       'api::xbox-gift-card.xbox-gift-card': ApiXboxGiftCardXboxGiftCard;

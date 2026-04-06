@@ -30,6 +30,14 @@ module.exports = {
       },
     },
     {
+      method: "POST",
+      path: "/orders/manual-send",
+      handler: "order.sendKeysManually",
+      config: {
+        auth: {}, // 🔥 REQUIRED
+      },
+    },
+    {
       method: 'POST',
       path: '/orders/razorpay/success',
       handler: 'order.razorpaySuccess',

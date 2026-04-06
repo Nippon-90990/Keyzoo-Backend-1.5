@@ -101,6 +101,10 @@
     },
     "assignedKeys": {
       "type": "json"
+    },
+    "manualDeliveryRequired": {
+      "type": "boolean",
+      "default": false
     }
   }
 }

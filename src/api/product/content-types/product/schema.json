@@ -239,6 +239,12 @@
       "type": "relation",
       "relation": "oneToMany",
       "target": "api::product.product"
+    },
+    "stock_alerts": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::stock-alert.stock-alert",
+      "mappedBy": "product"
     }
   }
 }
