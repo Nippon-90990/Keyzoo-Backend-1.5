@@ -234,39 +234,90 @@ module.exports = createCoreController("api::order.order", ({ strapi }) => ({
     ctx.send({ received: true });
   },
   async sendKeysManually(ctx) {
+    const { orderId } = ctx.request.body;
 
-    const { orderId, keys } = ctx.request.body;
+    if (!orderId) {
+      return ctx.badRequest("Order ID required");
+    }
 
-    if (!orderId || !keys || !Array.isArray(keys) || keys.length === 0) {
-      return ctx.badRequest("Invalid data");
+    if (ctx.request.header['x-admin-secret'] !== process.env.ADMIN_SECRET) {
+      return ctx.unauthorized("Not allowed");
     }
 
     const order = await strapi.entityService.findOne("api::order.order", orderId);
 
     if (!order) return ctx.notFound("Order not found");
 
-    // update order
+    const cartItems = order.cartSnapshot || [];
+    let assignedKeys = order.assignedKeys || [];
+
+    // 🔥 Assign remaining keys from DB
+    for (const item of cartItems) {
+      const product = await strapi.db.query("api::product.product").findOne({
+        where: { title: item.title },
+        populate: { gameKeys: true },
+      });
+
+      if (!product) continue;
+
+      const alreadyAssigned = assignedKeys.filter(
+        k => k.product === item.title
+      ).length;
+
+      const remainingQty = item.quantity - alreadyAssigned;
+
+      if (remainingQty <= 0) continue;
+
+      const availableKeys = product.gameKeys.filter(k => k.isAvailable);
+      const keysToAssign = availableKeys.slice(0, remainingQty);
+
+      for (const key of keysToAssign) {
+        await strapi.db.query("api::game-key.game-key").update({
+          where: { id: key.id },
+          data: { isAvailable: false, assignedAt: new Date() },
+        });
+
+        assignedKeys.push({ product: product.title, key: key.code });
+      }
+    }
+
+    // 🔥 Recalculate
+    const totalRequiredKeys = cartItems.reduce(
+      (sum, item) => sum + item.quantity,
+      0
+    );
+
+    let deliveryStatus;
+
+    if (assignedKeys.length === 0) {
+      deliveryStatus = "pending";
+    } else if (assignedKeys.length < totalRequiredKeys) {
+      deliveryStatus = "partial";
+    } else {
+      deliveryStatus = "completed";
+    }
+
+    // 🔥 Update order
     await strapi.entityService.update("api::order.order", orderId, {
       data: {
-        assignedKeys: keys,
-        deliveryStatus: "completed",
-        deliveredAt: new Date(),
-        manualDeliveryRequired: false, // 🔥 IMPORTANT
+        assignedKeys,
+        deliveryStatus,
+        deliveredAt: deliveryStatus === "completed" ? new Date() : null,
+        manualDeliveryRequired: assignedKeys.length < totalRequiredKeys,
+        totalKeysAssigned: assignedKeys.length,
       },
     });
 
-    const formattedKeys = keys.map(k => ({
-      product: "Manual Delivery",
-      key: k
-    }));
+    // 🔥 Send email again
+    const htmlTemplate = generateEmailTemplate(order, cartItems, assignedKeys);
 
-    const htmlTemplate = generateEmailTemplate(order, order.cartSnapshot, formattedKeys);
-
-    // send email
     await resend.emails.send({
       from: "Keyzoo <noreply@mail.quickcheckout.in>",
       to: order.deliveryEmail,
-      subject: `Your Game Keys - Order #${order.orderNumber}`,
+      subject:
+        deliveryStatus === "completed"
+          ? `Your Remaining Keys - Order #${order.orderNumber}`
+          : `Partial Delivery Update (#${order.orderNumber})`,
       html: htmlTemplate,
     });
 
