@@ -467,6 +467,41 @@ export interface AdminUser extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiAdBannerSectionAdBannerSection
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'ad_banner_sections';
+  info: {
+    displayName: 'Ad Banner Section';
+    pluralName: 'ad-banner-sections';
+    singularName: 'ad-banner-section';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    description: Schema.Attribute.RichText;
+    image: Schema.Attribute.Media<'images'>;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::ad-banner-section.ad-banner-section'
+    > &
+      Schema.Attribute.Private;
+    logo: Schema.Attribute.Media<'images'>;
+    product: Schema.Attribute.Relation<'oneToOne', 'api::product.product'>;
+    publishedAt: Schema.Attribute.DateTime;
+    thumnail: Schema.Attribute.Media<'images'>;
+    title: Schema.Attribute.String;
+    trailer: Schema.Attribute.Media<'videos'>;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface ApiBinanceGiftCardBinanceGiftCard
   extends Struct.CollectionTypeSchema {
   collectionName: 'binance_gift_cards';
@@ -1027,6 +1062,33 @@ export interface ApiHeroBannerHeroBanner extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiMyOrderMyOrder extends Struct.CollectionTypeSchema {
+  collectionName: 'my_orders';
+  info: {
+    displayName: 'My Order';
+    pluralName: 'my-orders';
+    singularName: 'my-order';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::my-order.my-order'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface ApiNewsletterSubscriberNewsletterSubscriber
   extends Struct.CollectionTypeSchema {
   collectionName: 'newsletter_subscribers';
@@ -1554,6 +1616,7 @@ export interface ApiProductProduct extends Struct.CollectionTypeSchema {
       false
     >;
     notice: Schema.Attribute.String;
+    platform_icon_image: Schema.Attribute.Media<'images'>;
     platform_image: Schema.Attribute.String;
     platformIcons: Schema.Attribute.String;
     price: Schema.Attribute.Decimal;
@@ -2941,6 +3004,7 @@ declare module '@strapi/strapi' {
       'admin::transfer-token': AdminTransferToken;
       'admin::transfer-token-permission': AdminTransferTokenPermission;
       'admin::user': AdminUser;
+      'api::ad-banner-section.ad-banner-section': ApiAdBannerSectionAdBannerSection;
       'api::binance-gift-card.binance-gift-card': ApiBinanceGiftCardBinanceGiftCard;
       'api::category-banner.category-banner': ApiCategoryBannerCategoryBanner;
       'api::category.category': ApiCategoryCategory;
@@ -2951,6 +3015,7 @@ declare module '@strapi/strapi' {
       'api::gift-card-variation.gift-card-variation': ApiGiftCardVariationGiftCardVariation;
       'api::gift-card.gift-card': ApiGiftCardGiftCard;
       'api::hero-banner.hero-banner': ApiHeroBannerHeroBanner;
+      'api::my-order.my-order': ApiMyOrderMyOrder;
       'api::newsletter-subscriber.newsletter-subscriber': ApiNewsletterSubscriberNewsletterSubscriber;
       'api::order-item.order-item': ApiOrderItemOrderItem;
       'api::order.order': ApiOrderOrder;

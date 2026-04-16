@@ -240,8 +240,24 @@ module.exports = createCoreController("api::order.order", ({ strapi }) => ({
       return ctx.badRequest("Order ID required");
     }
 
-    if (ctx.request.header['x-admin-secret'] !== process.env.ADMIN_SECRET) {
-      return ctx.unauthorized("Not allowed");
+    // if (ctx.request.header['x-admin-secret'] !== process.env.ADMIN_SECRET) {
+    //   return ctx.unauthorized("Not allowed");
+    // }
+
+    // if (ctx.state.user.role.name !== "Admin") {
+    //   return ctx.forbidden("Admins only");
+    // }
+
+    // if any error then simply remove it...
+
+    // 🔐 Must be logged in
+    if (!ctx.state.user) {
+      return ctx.unauthorized("Login required");
+    }
+
+    // 🔐 Must be admin
+    if (ctx.state.user.role?.name !== "Admin") {
+      return ctx.forbidden("Admins only");
     }
 
     const order = await strapi.entityService.findOne("api::order.order", orderId);
@@ -320,6 +336,53 @@ module.exports = createCoreController("api::order.order", ({ strapi }) => ({
           : `Partial Delivery Update (#${order.orderNumber})`,
       html: htmlTemplate,
     });
+
+    return ctx.send({ success: true });
+  },
+  async resendEmail(ctx) {
+    if (!ctx.state.user) {
+      return ctx.unauthorized("Login required");
+    }
+
+    if (ctx.state.user.role.name !== "Admin") {
+      return ctx.forbidden("Admins only");
+    }
+
+    const { orderId } = ctx.request.body;
+
+    const order = await strapi.entityService.findOne("api::order.order", orderId);
+
+    if (!order) {
+      return ctx.notFound("Order not found");
+    }
+
+    const html = generateEmailTemplate(
+      order,
+      order.cartSnapshot,
+      order.assignedKeys
+    );
+
+    await resend.emails.send({
+      from: "Keyzoo <noreply@mail.quickcheckout.in>",
+      to: order.deliveryEmail,
+      subject: `Your Keys - ${order.orderNumber}`,
+      html,
+    });
+
+    return ctx.send({ success: true });
+  },
+  async deleteOrder(ctx) {
+    if (!ctx.state.user) {
+      return ctx.unauthorized("Login required");
+    }
+
+    if (ctx.state.user.role.name !== "Admin") {
+      return ctx.forbidden("Admins only");
+    }
+
+    const { orderId } = ctx.request.body;
+
+    await strapi.entityService.delete("api::order.order", orderId);
 
     return ctx.send({ success: true });
   },

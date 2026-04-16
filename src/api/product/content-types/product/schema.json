@@ -245,6 +245,13 @@
       "relation": "oneToMany",
       "target": "api::stock-alert.stock-alert",
       "mappedBy": "product"
+    },
+    "platform_icon_image": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images"
+      ]
     }
   }
 }

@@ -1,0 +1,14 @@
+{
+  "kind": "collectionType",
+  "collectionName": "my_orders",
+  "info": {
+    "singularName": "my-order",
+    "pluralName": "my-orders",
+    "displayName": "My Order"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {}
+}

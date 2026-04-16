@@ -33,7 +33,19 @@ module.exports = {
       method: "POST",
       path: "/orders/manual-send",
       handler: "order.sendKeysManually",
-      config: { auth: false },
+      config: { },
+    },
+    {
+      method: "POST",
+      path: "/orders/resend",
+      handler: "order.resendEmail",
+      config: { },
+    },
+    {
+      method: "POST",
+      path: "/orders/delete",
+      handler: "order.deleteOrder",
+      config: { },
     },
     {
       method: 'POST',
