@@ -129,35 +129,23 @@
         "images"
       ]
     },
-    "region": {
+    "platform": {
       "type": "enumeration",
       "enum": [
-        "Europe",
-        "United states",
-        "Global",
-        "Russia",
-        "United kingdom",
-        "China",
-        "Row (rest of world)",
-        "Latin america",
-        "Asia",
-        "Germany",
-        "Australia",
-        "Brazil",
-        "India",
-        "Japan",
-        "North America",
-        "Poland",
-        "Turkey",
-        "Hong Kong",
-        "Taiwan",
-        "Vietnam",
-        "Thailand",
-        "South Korea",
-        "Argentina",
-        "Canada",
-        "Denmark",
-        "Sweden"
+        "psn",
+        "xbox",
+        "steam",
+        "spotify",
+        "roblox",
+        "binance"
+      ]
+    },
+    "category": {
+      "type": "enumeration",
+      "enum": [
+        "gift-card",
+        "game",
+        "subscription"
       ]
     },
     "workPlatform": {
@@ -189,7 +177,8 @@
       "type": "richtext"
     },
     "Available": {
-      "type": "boolean"
+      "type": "boolean",
+      "default": true
     },
     "platform_image": {
       "type": "media",

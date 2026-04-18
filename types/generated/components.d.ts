@@ -16,7 +16,7 @@ export interface GameLanguageInterfaceLanguage extends Struct.ComponentSchema {
     displayName: 'Interface Language';
   };
   attributes: {
-    interface: Schema.Attribute.String;
+    interface: Schema.Attribute.Text;
   };
 }
 
@@ -34,7 +34,7 @@ export interface GameLanguageSubtitlesLanguage extends Struct.ComponentSchema {
     displayName: 'Subtitles Language';
   };
   attributes: {
-    subtitles: Schema.Attribute.String;
+    subtitles: Schema.Attribute.Text;
   };
 }
 

@@ -6,7 +6,7 @@
   "options": {},
   "attributes": {
     "interface": {
-      "type": "string"
+      "type": "text"
     }
   },
   "config": {}

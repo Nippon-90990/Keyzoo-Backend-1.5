@@ -911,7 +911,7 @@ export interface ApiGiftCardGiftCard extends Struct.CollectionTypeSchema {
       'game-language.audio-language',
       false
     >;
-    Available: Schema.Attribute.Boolean;
+    Available: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<true>;
     card_region: Schema.Attribute.Enumeration<
       [
         'EUROPE',
@@ -941,6 +941,9 @@ export interface ApiGiftCardGiftCard extends Struct.CollectionTypeSchema {
         'DENMARK',
         'SWEDEN',
       ]
+    >;
+    category: Schema.Attribute.Enumeration<
+      ['gift-card', 'game', 'subscription']
     >;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
@@ -972,6 +975,9 @@ export interface ApiGiftCardGiftCard extends Struct.CollectionTypeSchema {
       false
     >;
     notice: Schema.Attribute.String;
+    platform: Schema.Attribute.Enumeration<
+      ['psn', 'xbox', 'steam', 'spotify', 'roblox', 'binance']
+    >;
     platform_image: Schema.Attribute.Media<'images'>;
     price: Schema.Attribute.Decimal;
     publishedAt: Schema.Attribute.DateTime;
@@ -979,36 +985,6 @@ export interface ApiGiftCardGiftCard extends Struct.CollectionTypeSchema {
     recommendedRequirement: Schema.Attribute.Component<
       'game-requirements.recommended',
       false
-    >;
-    region: Schema.Attribute.Enumeration<
-      [
-        'Europe',
-        'United states',
-        'Global',
-        'Russia',
-        'United kingdom',
-        'China',
-        'Row (rest of world)',
-        'Latin america',
-        'Asia',
-        'Germany',
-        'Australia',
-        'Brazil',
-        'India',
-        'Japan',
-        'North America',
-        'Poland',
-        'Turkey',
-        'Hong Kong',
-        'Taiwan',
-        'Vietnam',
-        'Thailand',
-        'South Korea',
-        'Argentina',
-        'Canada',
-        'Denmark',
-        'Sweden',
-      ]
     >;
     relatedProducts: Schema.Attribute.Relation<
       'oneToMany',

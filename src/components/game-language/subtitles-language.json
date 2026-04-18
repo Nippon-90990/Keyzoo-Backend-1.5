@@ -6,7 +6,7 @@
   "options": {},
   "attributes": {
     "subtitles": {
-      "type": "string"
+      "type": "text"
     }
   },
   "config": {}
