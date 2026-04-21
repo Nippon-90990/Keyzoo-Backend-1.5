@@ -1,0 +1,21 @@
+{
+    "collectionName": "components_blog_step_blocks",
+    "info": {
+        "displayName": "Step Block"
+    },
+    "attributes": {
+        "stepNumber": {
+            "type": "integer"
+        },
+        "title": {
+            "type": "string"
+        },
+        "description": {
+            "type": "richtext"
+        },
+        "image": {
+            "type": "media",
+            "multiple": false
+        }
+    }
+}

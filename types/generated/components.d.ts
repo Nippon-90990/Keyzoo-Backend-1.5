@@ -1,5 +1,49 @@
 import type { Schema, Struct } from '@strapi/strapi';
 
+export interface BlogHeadingBlock extends Struct.ComponentSchema {
+  collectionName: 'components_blog_heading_blocks';
+  info: {
+    displayName: 'Heading Block';
+  };
+  attributes: {
+    text: Schema.Attribute.String;
+  };
+}
+
+export interface BlogImageBlock extends Struct.ComponentSchema {
+  collectionName: 'components_blog_image_blocks';
+  info: {
+    displayName: 'Image Block';
+  };
+  attributes: {
+    caption: Schema.Attribute.String;
+    image: Schema.Attribute.Media;
+  };
+}
+
+export interface BlogStepBlock extends Struct.ComponentSchema {
+  collectionName: 'components_blog_step_blocks';
+  info: {
+    displayName: 'Step Block';
+  };
+  attributes: {
+    description: Schema.Attribute.RichText;
+    image: Schema.Attribute.Media;
+    stepNumber: Schema.Attribute.Integer;
+    title: Schema.Attribute.String;
+  };
+}
+
+export interface BlogTextBlock extends Struct.ComponentSchema {
+  collectionName: 'components_blog_text_blocks';
+  info: {
+    displayName: 'Text Block';
+  };
+  attributes: {
+    text: Schema.Attribute.RichText;
+  };
+}
+
 export interface GameLanguageAudioLanguage extends Struct.ComponentSchema {
   collectionName: 'components_game_language_audio_languages';
   info: {
@@ -114,6 +158,10 @@ export interface SlugSeoTagTag extends Struct.ComponentSchema {
 declare module '@strapi/strapi' {
   export module Public {
     export interface ComponentSchemas {
+      'blog.heading-block': BlogHeadingBlock;
+      'blog.image-block': BlogImageBlock;
+      'blog.step-block': BlogStepBlock;
+      'blog.text-block': BlogTextBlock;
       'game-language.audio-language': GameLanguageAudioLanguage;
       'game-language.interface-language': GameLanguageInterfaceLanguage;
       'game-language.language-support': GameLanguageLanguageSupport;

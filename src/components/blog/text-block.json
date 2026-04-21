@@ -1,0 +1,11 @@
+{
+    "collectionName": "components_blog_text_blocks",
+    "info": {
+        "displayName": "Text Block"
+    },
+    "attributes": {
+        "text": {
+            "type": "richtext"
+        }
+    }
+}

@@ -1,0 +1,11 @@
+{
+    "collectionName": "components_blog_heading_blocks",
+    "info": {
+        "displayName": "Heading Block"
+    },
+    "attributes": {
+        "text": {
+            "type": "string"
+        }
+    }
+}

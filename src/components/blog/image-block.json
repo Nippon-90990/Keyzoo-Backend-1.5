@@ -1,0 +1,15 @@
+{
+    "collectionName": "components_blog_image_blocks",
+    "info": {
+        "displayName": "Image Block"
+    },
+    "attributes": {
+        "image": {
+            "type": "media",
+            "multiple": false
+        },
+        "caption": {
+            "type": "string"
+        }
+    }
+}
