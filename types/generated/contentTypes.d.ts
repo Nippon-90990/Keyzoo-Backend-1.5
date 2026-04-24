@@ -681,30 +681,84 @@ export interface ApiBlogBlog extends Struct.CollectionTypeSchema {
     draftAndPublish: true;
   };
   attributes: {
+    after_step_last_message: Schema.Attribute.RichText;
     author: Schema.Attribute.Relation<'manyToOne', 'api::author.author'>;
     category: Schema.Attribute.Relation<'manyToOne', 'api::category.category'>;
-    content: Schema.Attribute.DynamicZone<
-      [
-        'blog.text-block',
-        'blog.image-block',
-        'blog.step-block',
-        'blog.heading-block',
-      ]
-    >;
+    contant_para_1: Schema.Attribute.RichText;
+    contant_para_10: Schema.Attribute.RichText;
+    contant_para_11: Schema.Attribute.RichText;
+    contant_para_12: Schema.Attribute.RichText;
+    contant_para_13: Schema.Attribute.RichText;
+    contant_para_14: Schema.Attribute.RichText;
+    contant_para_15: Schema.Attribute.RichText;
+    contant_para_2: Schema.Attribute.RichText;
+    contant_para_3: Schema.Attribute.RichText;
+    contant_para_4: Schema.Attribute.RichText;
+    contant_para_5: Schema.Attribute.RichText;
+    contant_para_6: Schema.Attribute.RichText;
+    contant_para_7: Schema.Attribute.RichText;
+    contant_para_8: Schema.Attribute.RichText;
+    contant_para_9: Schema.Attribute.RichText;
+    content_description_1: Schema.Attribute.RichText;
+    content_description_10: Schema.Attribute.RichText;
+    content_description_11: Schema.Attribute.RichText;
+    content_description_12: Schema.Attribute.RichText;
+    content_description_13: Schema.Attribute.RichText;
+    content_description_14: Schema.Attribute.RichText;
+    content_description_15: Schema.Attribute.RichText;
+    content_description_2: Schema.Attribute.RichText;
+    content_description_3: Schema.Attribute.RichText;
+    content_description_4: Schema.Attribute.RichText;
+    content_description_5: Schema.Attribute.RichText;
+    content_description_6: Schema.Attribute.RichText;
+    content_description_7: Schema.Attribute.RichText;
+    content_description_8: Schema.Attribute.RichText;
+    content_description_9: Schema.Attribute.RichText;
+    content_image_1: Schema.Attribute.Media<'images'>;
+    content_image_10: Schema.Attribute.Media<'images'>;
+    content_image_11: Schema.Attribute.Media<'images'>;
+    content_image_12: Schema.Attribute.Media<'images'>;
+    content_image_13: Schema.Attribute.Media<'images'>;
+    content_image_14: Schema.Attribute.Media<'images'>;
+    content_image_15: Schema.Attribute.Media<'images'>;
+    content_image_2: Schema.Attribute.Media<'images'>;
+    content_image_3: Schema.Attribute.Media<'images'>;
+    content_image_4: Schema.Attribute.Media<'images'>;
+    content_image_5: Schema.Attribute.Media<'images'>;
+    content_image_6: Schema.Attribute.Media<'images'>;
+    content_image_7: Schema.Attribute.Media<'images'>;
+    content_image_8: Schema.Attribute.Media<'images'>;
+    content_image_9: Schema.Attribute.Media<'images'>;
+    content_title_1: Schema.Attribute.String;
+    content_title_10: Schema.Attribute.String;
+    content_title_11: Schema.Attribute.String;
+    content_title_12: Schema.Attribute.String;
+    content_title_13: Schema.Attribute.String;
+    content_title_14: Schema.Attribute.String;
+    content_title_15: Schema.Attribute.String;
+    content_title_2: Schema.Attribute.String;
+    content_title_3: Schema.Attribute.String;
+    content_title_4: Schema.Attribute.String;
+    content_title_5: Schema.Attribute.String;
+    content_title_6: Schema.Attribute.String;
+    content_title_7: Schema.Attribute.String;
+    content_title_8: Schema.Attribute.String;
+    content_title_9: Schema.Attribute.String;
     coverImage: Schema.Attribute.Media<'images'>;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     excerpt: Schema.Attribute.Text;
     featured: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    FeaturedPost_image: Schema.Attribute.Media<'images'>;
+    heading_title: Schema.Attribute.String;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<'oneToMany', 'api::blog.blog'> &
       Schema.Attribute.Private;
     publishedAt: Schema.Attribute.DateTime;
     seo: Schema.Attribute.Component<'shared.seo', false>;
-    slug: Schema.Attribute.UID<'title'> & Schema.Attribute.Required;
+    slug: Schema.Attribute.UID<'heading_title'> & Schema.Attribute.Required;
     tags: Schema.Attribute.Relation<'manyToMany', 'api::tag.tag'>;
-    title: Schema.Attribute.String & Schema.Attribute.Required;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
