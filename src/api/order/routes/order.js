@@ -29,23 +29,34 @@ module.exports = {
         middlewares: [],   // IMPORTANT: no custom middleware here
       },
     },
+    // ✅ CASHFREE WEBHOOK (NEW)
+    {
+      method: 'POST',
+      path: '/orders/cashfree/webhook',
+      handler: 'order.cashfreeWebhook',
+      config: {
+        auth: false,
+        policies: [],
+        middlewares: [],
+      },
+    },
     {
       method: "POST",
       path: "/orders/manual-send",
       handler: "order.sendKeysManually",
-      config: { },
+      config: {},
     },
     {
       method: "POST",
       path: "/orders/resend",
       handler: "order.resendEmail",
-      config: { },
+      config: {},
     },
     {
       method: "POST",
       path: "/orders/delete",
       handler: "order.deleteOrder",
-      config: { },
+      config: {},
     },
     {
       method: 'POST',

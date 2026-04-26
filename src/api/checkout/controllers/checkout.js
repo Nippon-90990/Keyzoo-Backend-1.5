@@ -66,9 +66,7 @@ module.exports = {
       return ctx.internalServerError("Unable to create checkout session");
     }
   },
-
-  // ---------- RAZORPAY (new) ----------
-  async createRazorpayOrder(ctx) {
+  async createCashfreeOrder(ctx) {
     try {
       const { cartItems = [], email, userId, total } = ctx.request.body || {};
 
@@ -76,63 +74,127 @@ module.exports = {
       if (!cartItems.length) return ctx.badRequest("Cart empty");
       if (!email) return ctx.badRequest("Email required");
 
-      const razorpay = new Razorpay({
-        key_id: process.env.RAZORPAY_KEY_ID,
-        key_secret: process.env.RAZORPAY_KEY_SECRET,
-      });
-
-      const amountInPaise = Math.round(total * 100);
-
-      const order = await razorpay.orders.create({
-        amount: amountInPaise,
-        currency: "INR",
-        receipt: `order_rcpt_${Date.now()}`,
-        notes: {
-          userId: String(userId),
-          email,
-          cart: JSON.stringify(cartItems),
+      const res = await fetch("https://sandbox.cashfree.com/pg/orders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-client-id": process.env.CASHFREE_APP_ID,
+          "x-client-secret": process.env.CASHFREE_SECRET_KEY,
+          "x-api-version": "2022-09-01",
         },
+        body: JSON.stringify({
+          order_amount: total,
+          order_currency: "INR",
+          order_id: "cf_" + Date.now(),
+          customer_details: {
+            customer_id: String(userId),
+            customer_email: email,
+            customer_name: "User",
+            customer_phone: "9999999991", // 🔥 REQUIRED
+          },
+          order_meta: {
+            return_url: `${process.env.FRONTEND_URL}/success`,
+            cart: JSON.stringify(cartItems),
+            userId: String(userId),
+          },
+        }),
       });
 
-      ctx.send({
-        success: true,
-        orderId: order.id,
-        amount: order.amount,
-        currency: order.currency,
-        key: process.env.RAZORPAY_KEY_ID, // for frontend checkout.js
-      });
-    } catch (err) {
-      strapi.log.error("❌ Razorpay order create failed:", err);
-      return ctx.internalServerError("Razorpay order creation failed");
-    }
-  },
+      const data = await res.json();
 
-  async verifyRazorpayPayment(ctx) {
-    try {
-      const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = ctx.request.body;
-
-      console.log("🧾 Verification Data:", ctx.request.body);
-
-      const body = razorpay_order_id + "|" + razorpay_payment_id;
-
-      const expectedSignature = crypto
-        .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
-        .update(body.toString())
-        .digest("hex");
-
-      console.log("✅ Expected Signature:", expectedSignature);
-      console.log("🧠 Received Signature:", razorpay_signature);
-
-      if (expectedSignature !== razorpay_signature) {
-        console.log("❌ Signature mismatch!");
-        return ctx.badRequest("Invalid payment signature");
+      // 🔥 ADD THIS
+      if (!res.ok) {
+        strapi.log.error("❌ Cashfree API Error:", data);
+        return ctx.throw(400, "Cashfree order creation failed");
       }
 
-      console.log("✅ Razorpay Payment Verified Successfully!");
-      ctx.send({ verified: true });
+      ctx.send({
+        payment_session_id: data.payment_session_id,
+      });
+
     } catch (err) {
-      strapi.log.error("❌ Razorpay verification failed:", err);
-      return ctx.internalServerError("Razorpay verification failed");
+      strapi.log.error("❌ Cashfree order error:", err);
+      return ctx.internalServerError("Cashfree order failed");
     }
   },
+
+
+
+
+
+
+
+
+
+
+
+
+  // // ---------- RAZORPAY (new) ----------
+  // async createRazorpayOrder(ctx) {
+  //   try {
+  //     const { cartItems = [], email, userId, total } = ctx.request.body || {};
+
+  //     if (!userId) return ctx.badRequest("Login required");
+  //     if (!cartItems.length) return ctx.badRequest("Cart empty");
+  //     if (!email) return ctx.badRequest("Email required");
+
+  //     const razorpay = new Razorpay({
+  //       key_id: process.env.RAZORPAY_KEY_ID,
+  //       key_secret: process.env.RAZORPAY_KEY_SECRET,
+  //     });
+
+  //     const amountInPaise = Math.round(total * 100);
+
+  //     const order = await razorpay.orders.create({
+  //       amount: amountInPaise,
+  //       currency: "INR",
+  //       receipt: `order_rcpt_${Date.now()}`,
+  //       notes: {
+  //         userId: String(userId),
+  //         email,
+  //         cart: JSON.stringify(cartItems),
+  //       },
+  //     });
+
+  //     ctx.send({
+  //       success: true,
+  //       orderId: order.id,
+  //       amount: order.amount,
+  //       currency: order.currency,
+  //       key: process.env.RAZORPAY_KEY_ID, // for frontend checkout.js
+  //     });
+  //   } catch (err) {
+  //     strapi.log.error("❌ Razorpay order create failed:", err);
+  //     return ctx.internalServerError("Razorpay order creation failed");
+  //   }
+  // },
+
+  // async verifyRazorpayPayment(ctx) {
+  //   try {
+  //     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = ctx.request.body;
+
+  //     console.log("🧾 Verification Data:", ctx.request.body);
+
+  //     const body = razorpay_order_id + "|" + razorpay_payment_id;
+
+  //     const expectedSignature = crypto
+  //       .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+  //       .update(body.toString())
+  //       .digest("hex");
+
+  //     console.log("✅ Expected Signature:", expectedSignature);
+  //     console.log("🧠 Received Signature:", razorpay_signature);
+
+  //     if (expectedSignature !== razorpay_signature) {
+  //       console.log("❌ Signature mismatch!");
+  //       return ctx.badRequest("Invalid payment signature");
+  //     }
+
+  //     console.log("✅ Razorpay Payment Verified Successfully!");
+  //     ctx.send({ verified: true });
+  //   } catch (err) {
+  //     strapi.log.error("❌ Razorpay verification failed:", err);
+  //     return ctx.internalServerError("Razorpay verification failed");
+  //   }
+  // },
 };

@@ -78,6 +78,60 @@ function generateEmailTemplate(order, cartItems, assignedKeys) {
   </html>`;
 }
 
+async function assignKeysAndSendEmail(order, cartItems, strapi) {
+  let assignedKeys = [];
+
+  for (const item of cartItems) {
+    const product = await strapi.db.query("api::product.product").findOne({
+      where: { title: item.title },
+      populate: { gameKeys: true },
+    });
+
+    if (!product) continue;
+
+    const availableKeys = product.gameKeys.filter(k => k.isAvailable);
+    const keysToAssign = availableKeys.slice(0, item.quantity);
+
+    for (const key of keysToAssign) {
+      await strapi.db.query("api::game-key.game-key").update({
+        where: { id: key.id },
+        data: { isAvailable: false, assignedAt: new Date() },
+      });
+
+      assignedKeys.push({ product: product.title, key: key.code });
+    }
+  }
+
+  const totalRequiredKeys = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+
+  let deliveryStatus = "pending";
+  if (assignedKeys.length === totalRequiredKeys) deliveryStatus = "completed";
+  else if (assignedKeys.length > 0) deliveryStatus = "partial";
+
+  await strapi.db.query("api::order.order").update({
+    where: { id: order.id },
+    data: {
+      deliveryStatus,
+      manualDeliveryRequired: assignedKeys.length < totalRequiredKeys,
+      gameKeysAssigned: assignedKeys.length > 0,
+      deliveredAt: deliveryStatus === "completed" ? new Date() : null,
+      assignedKeys,
+      totalKeysRequired: totalRequiredKeys,
+      totalKeysAssigned: assignedKeys.length,
+    },
+  });
+
+  // send email
+  const htmlTemplate = generateEmailTemplate(order, cartItems, assignedKeys);
+
+  await resend.emails.send({
+    from: "Keyzoo <noreply@mail.quickcheckout.in>",
+    to: order.deliveryEmail,
+    subject: `Your Game Keys - Order #${order.orderNumber}`,
+    html: htmlTemplate,
+  });
+}
+
 // @ts-ignore
 const { createCoreController } = require("@strapi/strapi").factories;
 
@@ -148,83 +202,85 @@ module.exports = createCoreController("api::order.order", ({ strapi }) => ({
         `✅ Order ${order.orderNumber} created with ${cartItems.length} items.`
       );
 
-      // 2. Assign Game Keys
-      let assignedKeys = [];
-      for (const item of cartItems) {
-        const product = await strapi.db.query("api::product.product").findOne({
-          where: { title: item.title },
-          populate: { gameKeys: true },
-        });
+      await assignKeysAndSendEmail(order, cartItems, strapi);
 
-        if (!product) {
-          strapi.log.warn(`⚠️ Product not found: ${item.title}`);
-          continue;
-        }
+      // // 2. Assign Game Keys
+      // let assignedKeys = [];
+      // for (const item of cartItems) {
+      //   const product = await strapi.db.query("api::product.product").findOne({
+      //     where: { title: item.title },
+      //     populate: { gameKeys: true },
+      //   });
 
-        const availableKeys = product.gameKeys.filter(k => k.isAvailable);
-        const keysToAssign = availableKeys.slice(0, item.quantity);
+      //   if (!product) {
+      //     strapi.log.warn(`⚠️ Product not found: ${item.title}`);
+      //     continue;
+      //   }
 
-        if (keysToAssign.length < item.quantity) {
-          strapi.log.warn(
-            `⚠️ Not enough keys for ${item.title}. Needed: ${item.quantity}, got: ${keysToAssign.length}`
-          );
-        }
+      //   const availableKeys = product.gameKeys.filter(k => k.isAvailable);
+      //   const keysToAssign = availableKeys.slice(0, item.quantity);
 
-        for (const key of keysToAssign) {
-          await strapi.db.query("api::game-key.game-key").update({
-            where: { id: key.id },
-            data: { isAvailable: false, assignedAt: new Date() },
-          });
+      //   if (keysToAssign.length < item.quantity) {
+      //     strapi.log.warn(
+      //       `⚠️ Not enough keys for ${item.title}. Needed: ${item.quantity}, got: ${keysToAssign.length}`
+      //     );
+      //   }
 
-          assignedKeys.push({ product: product.title, key: key.code });
-        }
-      }
+      //   for (const key of keysToAssign) {
+      //     await strapi.db.query("api::game-key.game-key").update({
+      //       where: { id: key.id },
+      //       data: { isAvailable: false, assignedAt: new Date() },
+      //     });
 
-      const totalRequiredKeys = cartItems.reduce(
-        (sum, item) => sum + item.quantity,
-        0
-      );
+      //     assignedKeys.push({ product: product.title, key: key.code });
+      //   }
+      // }
 
-      // 3. Update Order Delivery Info
-      let deliveryStatus;
+      // const totalRequiredKeys = cartItems.reduce(
+      //   (sum, item) => sum + item.quantity,
+      //   0
+      // );
 
-      if (assignedKeys.length === 0) {
-        deliveryStatus = "pending";
-      } else if (assignedKeys.length < totalRequiredKeys) {
-        deliveryStatus = "partial";
-      } else {
-        deliveryStatus = "completed";
-      }
+      // // 3. Update Order Delivery Info
+      // let deliveryStatus;
 
-      await strapi.db.query("api::order.order").update({
-        where: { id: order.id },
-        data: {
-          deliveryStatus,
-          manualDeliveryRequired: assignedKeys.length < totalRequiredKeys,
-          gameKeysAssigned: assignedKeys.length > 0,
-          deliveredAt: deliveryStatus === "completed" ? new Date() : null,
-          assignedKeys,
-          totalKeysRequired: totalRequiredKeys,
-          totalKeysAssigned: assignedKeys.length,
-        },
-      });
+      // if (assignedKeys.length === 0) {
+      //   deliveryStatus = "pending";
+      // } else if (assignedKeys.length < totalRequiredKeys) {
+      //   deliveryStatus = "partial";
+      // } else {
+      //   deliveryStatus = "completed";
+      // }
 
-      // 4. Send Email with Keys
-      if (order.deliveryEmail) {
+      // await strapi.db.query("api::order.order").update({
+      //   where: { id: order.id },
+      //   data: {
+      //     deliveryStatus,
+      //     manualDeliveryRequired: assignedKeys.length < totalRequiredKeys,
+      //     gameKeysAssigned: assignedKeys.length > 0,
+      //     deliveredAt: deliveryStatus === "completed" ? new Date() : null,
+      //     assignedKeys,
+      //     totalKeysRequired: totalRequiredKeys,
+      //     totalKeysAssigned: assignedKeys.length,
+      //   },
+      // });
 
-        const htmlTemplate = generateEmailTemplate(order, cartItems, assignedKeys);
+      // // 4. Send Email with Keys
+      // if (order.deliveryEmail) {
 
-        await resend.emails.send({
-          from: "Keyzoo <noreply@mail.quickcheckout.in>",
-          to: order.deliveryEmail,
-          subject: assignedKeys.length > 0
-            ? `Your Game Keys - Order #${order.orderNumber}`
-            : `Order Confirmed - Keys will be delivered soon (#${order.orderNumber})`,
-          html: htmlTemplate,
-        });
+      //   const htmlTemplate = generateEmailTemplate(order, cartItems, assignedKeys);
 
-        strapi.log.info(`📩 Email sent to ${order.deliveryEmail}`);
-      }
+      //   await resend.emails.send({
+      //     from: "Keyzoo <noreply@mail.quickcheckout.in>",
+      //     to: order.deliveryEmail,
+      //     subject: assignedKeys.length > 0
+      //       ? `Your Game Keys - Order #${order.orderNumber}`
+      //       : `Order Confirmed - Keys will be delivered soon (#${order.orderNumber})`,
+      //     html: htmlTemplate,
+      //   });
+
+      //   strapi.log.info(`📩 Email sent to ${order.deliveryEmail}`);
+      // }
 
     } catch (err) {
       strapi.log.error("❌ Webhook order handling failed:", err);
@@ -386,6 +442,103 @@ module.exports = createCoreController("api::order.order", ({ strapi }) => ({
 
     return ctx.send({ success: true });
   },
+  async cashfreeWebhook(ctx) {
+    try {
+      const payload = ctx.request.body;
+
+      const signature = ctx.request.headers["x-webhook-signature"];
+      const crypto = require("crypto");
+
+      const generatedSignature = crypto
+        .createHmac("sha256", process.env.CASHFREE_WEBHOOK_SECRET)
+        .update(JSON.stringify(payload))
+        .digest("base64");
+
+      if (signature !== generatedSignature) {
+        strapi.log.error("❌ Invalid Cashfree signature");
+        return ctx.throw(400, "Invalid signature");
+      }
+
+      // Only handle success
+      if (payload.type !== "PAYMENT_SUCCESS_WEBHOOK") {
+        return ctx.send({ received: true });
+      }
+
+      const data = payload.data;
+      const orderData = data.order;
+
+      const existing = await strapi.db.query("api::order.order").findOne({
+        where: { cashfreeOrderId: orderData.order_id },
+      });
+
+      if (existing) {
+        strapi.log.warn("⚠️ Duplicate Cashfree webhook ignored");
+        return ctx.send({ received: true });
+      }
+
+      // const cartItems = JSON.parse(orderData.order_meta?.cart || "[]");
+
+      let cartItems = [];
+
+      try {
+        cartItems = JSON.parse(orderData.order_meta?.cart || "[]");
+      } catch (e) {
+        strapi.log.error("❌ Invalid cart JSON in Cashfree webhook");
+        return ctx.throw(400, "Invalid cart data");
+      }
+
+      if (!Array.isArray(cartItems) || cartItems.length === 0) {
+        return ctx.throw(400, "Empty cart");
+      }
+
+      const userId = orderData.order_meta?.userId;
+
+      if (!userId) {
+        strapi.log.warn("⚠️ Missing userId in Cashfree metadata");
+      }
+
+      const order = await strapi.entityService.create("api::order.order", {
+        data: {
+          orderNumber: `CF-${Date.now()}`,
+          totalAmount: orderData.order_amount,
+          currency: "INR",
+          paymentMethod: "upi",
+          paymentProvider: "cashfree",
+          paymentStatus: "paid",
+          cashfreeOrderId: orderData.order_id,
+          deliveryEmail: orderData.customer_details?.customer_email,
+          user: orderData.order_meta?.userId,
+          cartSnapshot: cartItems,
+          status: "processing",
+          deliveryStatus: "pending",
+        },
+      });
+
+      // 🔥 reuse logic
+      await assignKeysAndSendEmail(order, cartItems, strapi);
+
+      ctx.send({ received: true });
+
+    } catch (err) {
+      strapi.log.error("❌ Cashfree webhook error:", err);
+      return ctx.internalServerError("Cashfree webhook failed");
+    }
+  },
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   async razorpaySuccess(ctx) {
     try {
       const { orderId, paymentId, userId, email, cartItems = [], amount } = ctx.request.body;

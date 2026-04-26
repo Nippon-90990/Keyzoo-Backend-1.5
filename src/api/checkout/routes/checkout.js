@@ -8,15 +8,21 @@ module.exports = {
         },
         {
             method: "POST",
-            path: "/checkout/razorpay/create",
-            handler: "checkout.createRazorpayOrder",
+            path: "/checkout/cashfree/create",
+            handler: "checkout.createCashfreeOrder",
             config: { auth: false },
         },
-        {
-            method: "POST",
-            path: "/checkout/razorpay/verify",
-            handler: "checkout.verifyRazorpayPayment",
-            config: { auth: false },
-        },
+        // {
+        //     method: "POST",
+        //     path: "/checkout/razorpay/create",
+        //     handler: "checkout.createRazorpayOrder",
+        //     config: { auth: false },
+        // },
+        // {
+        //     method: "POST",
+        //     path: "/checkout/razorpay/verify",
+        //     handler: "checkout.verifyRazorpayPayment",
+        //     config: { auth: false },
+        // },
     ],
 };

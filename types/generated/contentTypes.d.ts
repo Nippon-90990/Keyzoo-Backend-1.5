@@ -682,6 +682,27 @@ export interface ApiBlogBlog extends Struct.CollectionTypeSchema {
   };
   attributes: {
     after_step_last_message: Schema.Attribute.RichText;
+    alternative: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    alternative_contant_para_1: Schema.Attribute.RichText;
+    alternative_contant_para_2: Schema.Attribute.RichText;
+    alternative_contant_para_3: Schema.Attribute.RichText;
+    alternative_contant_para_4: Schema.Attribute.RichText;
+    alternative_contant_para_5: Schema.Attribute.RichText;
+    alternative_content_description_1: Schema.Attribute.RichText;
+    alternative_content_description_2: Schema.Attribute.RichText;
+    alternative_content_description_3: Schema.Attribute.RichText;
+    alternative_content_description_4: Schema.Attribute.RichText;
+    alternative_content_description_5: Schema.Attribute.RichText;
+    alternative_content_image_1: Schema.Attribute.Media<'images'>;
+    alternative_content_image_2: Schema.Attribute.Media<'images'>;
+    alternative_content_image_3: Schema.Attribute.Media<'images'>;
+    alternative_content_image_4: Schema.Attribute.Media<'images'>;
+    alternative_content_image_5: Schema.Attribute.Media<'images'>;
+    alternative_content_title_1: Schema.Attribute.String;
+    alternative_content_title_2: Schema.Attribute.String;
+    alternative_content_title_3: Schema.Attribute.String;
+    alternative_content_title_4: Schema.Attribute.String;
+    alternative_content_title_5: Schema.Attribute.String;
     author: Schema.Attribute.Relation<'manyToOne', 'api::author.author'>;
     category: Schema.Attribute.Relation<'manyToOne', 'api::category.category'>;
     contant_para_1: Schema.Attribute.RichText;

@@ -300,8 +300,92 @@
         "images"
       ]
     },
+    "alternative_content_title_1": {
+      "type": "string"
+    },
+    "alternative_contant_para_1": {
+      "type": "richtext"
+    },
+    "alternative_content_description_1": {
+      "type": "richtext"
+    },
+    "alternative_content_image_1": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "alternative_content_title_2": {
+      "type": "string"
+    },
+    "alternative_contant_para_2": {
+      "type": "richtext"
+    },
+    "alternative_content_description_2": {
+      "type": "richtext"
+    },
+    "alternative_content_image_2": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "alternative_content_title_3": {
+      "type": "string"
+    },
+    "alternative_contant_para_3": {
+      "type": "richtext"
+    },
+    "alternative_content_description_3": {
+      "type": "richtext"
+    },
+    "alternative_content_image_3": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "alternative_content_title_4": {
+      "type": "string"
+    },
+    "alternative_contant_para_4": {
+      "type": "richtext"
+    },
+    "alternative_content_description_4": {
+      "type": "richtext"
+    },
+    "alternative_content_image_4": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "alternative_content_title_5": {
+      "type": "string"
+    },
+    "alternative_contant_para_5": {
+      "type": "richtext"
+    },
+    "alternative_content_description_5": {
+      "type": "richtext"
+    },
+    "alternative_content_image_5": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images"
+      ]
+    },
     "after_step_last_message": {
       "type": "richtext"
+    },
+    "alternative": {
+      "type": "boolean",
+      "default": false
     }
   }
 }
