@@ -442,89 +442,148 @@ module.exports = createCoreController("api::order.order", ({ strapi }) => ({
 
     return ctx.send({ success: true });
   },
-  async cashfreeWebhook(ctx) {
+  async createCashfreeOrder(ctx) {
     try {
-      const payload = ctx.request.body;
+      const { cartItems = [], email, userId, total } = ctx.request.body || {};
 
-      const signature = ctx.request.headers["x-webhook-signature"];
-      const crypto = require("crypto");
+      if (!userId) return ctx.badRequest("Login required");
+      if (!cartItems.length) return ctx.badRequest("Cart empty");
+      if (!email) return ctx.badRequest("Email required");
 
-      const generatedSignature = crypto
-        .createHmac("sha256", process.env.CASHFREE_WEBHOOK_SECRET)
-        .update(JSON.stringify(payload))
-        .digest("base64");
+      const order_id = `cf_${Date.now()}`;
 
-      if (signature !== generatedSignature) {
-        strapi.log.error("❌ Invalid Cashfree signature");
-        return ctx.throw(400, "Invalid signature");
-      }
+      const payload = {
+        order_id,
+        order_amount: total,
+        order_currency: "INR",
+        customer_details: {
+          customer_id: String(userId),
+          customer_email: email,
+          customer_phone: "9999999999",
+          customer_name: "User",
+        },
+        order_meta: {
+          return_url: `${process.env.FRONTEND_URL}/success`,
+        },
+      };
 
-      // Only handle success
-      if (payload.type !== "PAYMENT_SUCCESS_WEBHOOK") {
-        return ctx.send({ received: true });
-      }
-
-      const data = payload.data;
-      const orderData = data.order;
-
-      const existing = await strapi.db.query("api::order.order").findOne({
-        where: { cashfreeOrderId: orderData.order_id },
+      const res = await fetch("https://sandbox.cashfree.com/pg/orders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-version": "2022-09-01",
+          "x-client-id": process.env.CASHFREE_APP_ID,
+          "x-client-secret": process.env.CASHFREE_SECRET_KEY,
+        },
+        body: JSON.stringify(payload),
       });
 
-      if (existing) {
-        strapi.log.warn("⚠️ Duplicate Cashfree webhook ignored");
-        return ctx.send({ received: true });
+      const data = await res.json();
+
+      if (!res.ok) {
+        strapi.log.error("❌ Cashfree API Error:", data);
+        return ctx.throw(400, "Cashfree order creation failed");
       }
 
-      // const cartItems = JSON.parse(orderData.order_meta?.cart || "[]");
-
-      let cartItems = [];
-
-      try {
-        cartItems = JSON.parse(orderData.order_meta?.cart || "[]");
-      } catch (e) {
-        strapi.log.error("❌ Invalid cart JSON in Cashfree webhook");
-        return ctx.throw(400, "Invalid cart data");
-      }
-
-      if (!Array.isArray(cartItems) || cartItems.length === 0) {
-        return ctx.throw(400, "Empty cart");
-      }
-
-      const userId = orderData.order_meta?.userId;
-
-      if (!userId) {
-        strapi.log.warn("⚠️ Missing userId in Cashfree metadata");
-      }
-
-      const order = await strapi.entityService.create("api::order.order", {
+      // 🔥 SAVE TEMP ORDER (CRITICAL)
+      await strapi.entityService.create("api::order.order", {
         data: {
-          orderNumber: `CF-${Date.now()}`,
-          totalAmount: orderData.order_amount,
-          currency: "INR",
-          paymentMethod: "upi",
-          paymentProvider: "cashfree",
-          paymentStatus: "paid",
-          cashfreeOrderId: orderData.order_id,
-          deliveryEmail: orderData.customer_details?.customer_email,
-          user: orderData.order_meta?.userId,
+          orderNumber: `CF-TEMP-${Date.now()}`,
+          cashfreeOrderId: order_id,
           cartSnapshot: cartItems,
+          user: userId,
+          deliveryEmail: email,
+          paymentStatus: "pending",
+          paymentProvider: "cashfree",
           status: "processing",
           deliveryStatus: "pending",
         },
       });
 
-      // 🔥 reuse logic
-      await assignKeysAndSendEmail(order, cartItems, strapi);
+      ctx.send({
+        payment_session_id: data.payment_session_id,
+      });
+
+    } catch (err) {
+      strapi.log.error("❌ Cashfree create error:", err);
+      return ctx.internalServerError("Cashfree order failed");
+    }
+  },
+  async cashfreeWebhook(ctx) {
+    try {
+      const payload = ctx.request.body;
+
+      strapi.log.info("🔥 Cashfree webhook payload:");
+      console.log(JSON.stringify(payload, null, 2));
+
+      const isSuccess =
+        payload.type === "PAYMENT_SUCCESS" ||
+        payload.data?.payment?.payment_status === "SUCCESS";
+
+      if (!isSuccess) {
+        return ctx.send({ received: true });
+      }
+
+      const orderData = payload.data.order;
+
+      // 🔁 RETRY LOGIC (IMPORTANT FIX)
+      let tempOrder = null;
+
+      for (let i = 0; i < 5; i++) {
+        tempOrder = await strapi.db.query("api::order.order").findOne({
+          where: { cashfreeOrderId: orderData.order_id },
+        });
+
+        if (tempOrder) break;
+
+        // wait 500ms before retry
+        await new Promise(res => setTimeout(res, 500));
+      }
+
+      if (!tempOrder) {
+        strapi.log.error("❌ Temp order not found after retries");
+        return ctx.send({ received: true });
+      }
+
+      // 🔁 prevent duplicate
+      if (tempOrder.paymentStatus === "paid") {
+        return ctx.send({ received: true });
+      }
+
+      const cartItems = tempOrder.cartSnapshot;
+
+      if (!Array.isArray(cartItems) || cartItems.length === 0) {
+        strapi.log.error("❌ Empty cart");
+        return ctx.send({ received: true });
+      }
+
+      // ✅ UPDATE ORDER
+      const updatedOrder = await strapi.entityService.update(
+        "api::order.order",
+        tempOrder.id,
+        {
+          data: {
+            orderNumber: `CF-${Date.now()}`,
+            totalAmount: orderData.order_amount,
+            currency: "INR",
+            paymentMethod: "upi",
+            paymentProvider: "cashfree",
+            paymentStatus: "paid",
+            status: "processing",
+            deliveryStatus: "pending",
+          },
+        }
+      );
+
+      await assignKeysAndSendEmail(updatedOrder, cartItems, strapi);
 
       ctx.send({ received: true });
 
     } catch (err) {
       strapi.log.error("❌ Cashfree webhook error:", err);
-      return ctx.internalServerError("Cashfree webhook failed");
+      return ctx.send({ received: false });
     }
   },
-
 
 
 

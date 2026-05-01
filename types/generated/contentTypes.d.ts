@@ -1297,6 +1297,7 @@ export interface ApiOrderOrder extends Struct.CollectionTypeSchema {
   attributes: {
     assignedKeys: Schema.Attribute.JSON;
     cartSnapshot: Schema.Attribute.JSON;
+    cashfreeOrderId: Schema.Attribute.String & Schema.Attribute.Unique;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;

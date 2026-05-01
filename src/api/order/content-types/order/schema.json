@@ -16,6 +16,10 @@
       "type": "string",
       "unique": true
     },
+    "cashfreeOrderId": {
+      "type": "string",
+      "unique": true
+    },
     "totalAmount": {
       "type": "integer"
     },
